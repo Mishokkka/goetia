@@ -40,31 +40,15 @@
   isolation: isolate;
 }
 
+/* No large backing surface: on some GPU/compositor combinations a blurred or
+   translucent stage-sized layer can produce a display-only dark flash. Darkness is
+   instead attached to the rendered sigil contours with drop-shadows below. */
 .gg-cast-fx-stage::before {
-  content: "";
-  position: absolute;
-  z-index: 0;
-  inset: -12%;
-  border-radius: 50%;
-  background: radial-gradient(circle at center,
-    rgba(0, 0, 0, 0.9) 0 23%,
-    rgba(0, 0, 0, 0.74) 36%,
-    rgba(0, 0, 0, 0.4) 53%,
-    rgba(0, 0, 0, 0.12) 68%,
-    transparent 82%);
-  filter: blur(10px);
+  content: none;
 }
 
 .gg-cast-fx-stage::after {
-  content: "";
-  position: absolute;
-  z-index: 1;
-  inset: 4%;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at center, rgba(93, 0, 15, 0.14), transparent 52%),
-    repeating-radial-gradient(circle at center, transparent 0 23px, rgba(165, 19, 35, 0.045) 24px, transparent 25px 41px);
-  opacity: 0.82;
+  content: none;
 }
 
 .gg-cast-fx-sigil {
@@ -74,12 +58,42 @@
   left: 50%;
   width: 62%;
   aspect-ratio: 1;
+  border-radius: 50%;
   color: rgba(205, 16, 39, 0.98);
+  background: transparent;
   filter:
+    drop-shadow(0 0 8px rgba(0, 0, 0, 0.96))
+    drop-shadow(0 0 20px rgba(0, 0, 0, 0.82))
+    drop-shadow(0 0 42px rgba(0, 0, 0, 0.56))
     drop-shadow(0 0 4px rgba(255, 58, 74, 0.95))
-    drop-shadow(0 0 13px rgba(219, 0, 31, 0.82))
-    drop-shadow(0 0 30px rgba(113, 0, 19, 0.82));
+    drop-shadow(0 0 13px rgba(219, 0, 31, 0.78))
+    drop-shadow(0 0 26px rgba(113, 0, 19, 0.62));
   transform: translate(-50%, -50%);
+}
+
+.gg-cast-fx-shards {
+  position: absolute;
+  inset: 0;
+}
+
+.gg-cast-fx-shard {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.gg-cast-fx-shard-motion {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.gg-cast-fx-shard .gg-cast-fx-svg {
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible;
 }
 
 .gg-cast-fx-sigil .gg-ink-shadow {
@@ -114,9 +128,12 @@
   aspect-ratio: 1;
   color: rgba(205, 16, 39, 0.98);
   filter:
+    drop-shadow(0 0 5px rgba(0, 0, 0, 0.94))
+    drop-shadow(0 0 12px rgba(0, 0, 0, 0.76))
+    drop-shadow(0 0 24px rgba(0, 0, 0, 0.48))
     drop-shadow(0 0 4px rgba(255, 58, 74, 0.95))
-    drop-shadow(0 0 13px rgba(219, 0, 31, 0.82))
-    drop-shadow(0 0 30px rgba(113, 0, 19, 0.82));
+    drop-shadow(0 0 10px rgba(219, 0, 31, 0.76))
+    drop-shadow(0 0 20px rgba(113, 0, 19, 0.58));
   transform: translate(-50%, -50%);
 }
 
@@ -169,15 +186,18 @@
   animation: gg-cast-fx-mishap-twist var(--gg-mishap-speed, 0.72s) ease-in-out infinite alternate;
 }
 
+.gg-cast-fx-overlay.is-mishap .gg-cast-fx-shard {
+  animation: gg-cast-fx-mishap-drift 8s cubic-bezier(0.16, 0.76, 0.18, 1) var(--gg-shard-delay, 0s) forwards;
+}
+
+.gg-cast-fx-overlay.is-mishap .gg-cast-fx-shard-motion {
+  animation: gg-cast-fx-mishap-wander var(--gg-wander-duration, 1.7s) ease-in-out var(--gg-wander-delay, 0s) infinite alternate;
+}
+
 .gg-cast-fx-overlay.is-mishap .gg-cast-fx-svg {
   transform-box: fill-box;
   transform-origin: 50% 50%;
   animation: gg-cast-fx-mishap-warp var(--gg-mishap-warp-speed, 0.53s) steps(3, jump-none) infinite alternate;
-}
-
-.gg-cast-fx-overlay.is-mishap .gg-cast-fx-stage::after {
-  opacity: 1;
-  animation: gg-cast-fx-mishap-pulse 0.72s ease-in-out infinite alternate;
 }
 
 @keyframes gg-cast-fx-mishap-twist {
@@ -201,9 +221,28 @@
   100% { transform: translateX(var(--gg-mishap-shift, 1px)) skewX(1.4deg) scaleX(0.99) scaleY(1.012); }
 }
 
-@keyframes gg-cast-fx-mishap-pulse {
-  from { transform: scale(0.97) rotate(-0.8deg); opacity: 0.88; }
-  to { transform: scale(1.025) rotate(0.9deg); opacity: 1; }
+@keyframes gg-cast-fx-mishap-drift {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+  100% {
+    transform: translate(var(--gg-shard-dx, 0px), var(--gg-shard-dy, 0px)) rotate(var(--gg-shard-rot, 0deg)) scale(0.994);
+  }
+}
+
+@keyframes gg-cast-fx-mishap-wander {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  34% {
+    transform: translate(var(--gg-wander-x1, 0px), var(--gg-wander-y1, 0px)) rotate(var(--gg-wander-r1, 0deg));
+  }
+  67% {
+    transform: translate(var(--gg-wander-x2, 0px), var(--gg-wander-y2, 0px)) rotate(var(--gg-wander-r2, 0deg));
+  }
+  100% {
+    transform: translate(var(--gg-wander-x3, 0px), var(--gg-wander-y3, 0px)) rotate(var(--gg-wander-r3, 0deg));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -213,8 +252,9 @@
   }
 
   .gg-cast-fx-overlay.is-mishap .gg-cast-fx-sigil,
-  .gg-cast-fx-overlay.is-mishap .gg-cast-fx-svg,
-  .gg-cast-fx-overlay.is-mishap .gg-cast-fx-stage::after {
+  .gg-cast-fx-overlay.is-mishap .gg-cast-fx-shard,
+  .gg-cast-fx-overlay.is-mishap .gg-cast-fx-shard-motion,
+  .gg-cast-fx-overlay.is-mishap .gg-cast-fx-svg {
     animation: none !important;
   }
 }

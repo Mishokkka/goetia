@@ -310,6 +310,7 @@ const yearZeroRollSource = fs.readFileSync(path.join(root, "scripts/year-zero-ro
 const mishapSource = fs.readFileSync(path.join(root, "scripts/mishap-service.js"), "utf8");
 const contractSource = fs.readFileSync(path.join(root, "scripts/contract-view.js"), "utf8");
 const contractCss = fs.readFileSync(path.join(root, "styles/contract.css"), "utf8");
+const ritualCss = fs.readFileSync(path.join(root, "styles/ritual.css"), "utf8");
 const tooltipSource = fs.readFileSync(path.join(root, "scripts/spell-tooltip.js"), "utf8");
 const trainingCatalog = JSON.parse(fs.readFileSync(path.join(root, "data/training-catalog.json"), "utf8"));
 assert.ok(grimoireSource.split("\n").length < 1900, "grimoire.js should remain decomposed");
@@ -323,6 +324,7 @@ assert.ok(trainingCatalog.spells.some((entry) => entry.discipline === "General S
 assert.ok(trainingCatalog.spells.every((entry) => Number(entry.rank) >= 1 && Number(entry.rank) <= 5), "Training must exclude unsupported rank 6 spells");
 assert.ok(trainingSource.includes('const GENERAL_PATH_ID = "general"'), "Training must expose the General spell section");
 assert.ok(trainingSource.includes("activeProject"), "Training must persist an active project");
+assert.ok(trainingSource.includes("successes = success ? integer(project.successes) + 1 : 0"), "High-rank training must retain its documented consecutive-success rule");
 assert.ok(trainingSource.includes('createEmbeddedDocuments("Item"'), "Training completion must create embedded Items");
 assert.ok(trainingSource.includes("ITEM_ROLES.MAGIC_TALENT"), "Learning a path must tag the created Item as a magic talent");
 assert.ok(trainingSource.includes('source.type = "talent"'), "Learning a path must create a talent Item explicitly");
@@ -347,6 +349,10 @@ assert.ok(trainingSource.includes("runtime.trainingConfirmCleanup"), "Training c
 assert.ok(trainingSource.includes("bindDelayedSpellTooltip(runtime, button, spellTooltipMarkup(entry)"), "Training spells must use the shared delayed spell tooltip");
 assert.equal(trainingSource.includes("title=\"${escapeHtml(spellTooltip(entry))}"), false, "Training must not fall back to browser title tooltips");
 assert.ok(tooltipSource.includes("gg-spell-tooltip-card"), "Shared spell tooltip markup must retain the grimoire card layout");
+assert.ok(tooltipSource.includes('document.createElement("template")') && tooltipSource.includes("template.content.textContent"), "Spell tooltip plain-text extraction must parse HTML in an inert template");
+assert.ok(contractSource.includes("sanitizeContractHtml(contractSource(runtime.actor))"), "Contract HTML must be sanitized before enrichment and rendering");
+assert.ok(contractSource.includes("sanitizeContractHtml(await contractEditorContent(runtime))"), "Contract HTML must be sanitized before persistence");
+assert.ok(contractSource.includes('name.startsWith("on")') && contractSource.includes('"srcdoc"'), "Contract sanitization must strip executable event and srcdoc attributes");
 assert.ok(contractSource.includes("foundry.applications?.handlebars?.editor"), "Contract editing must retain Foundry's standard editor helper fallback");
 assert.ok(contractSource.includes("HTMLProseMirrorElement"), "Contract editing must create Foundry's standard ProseMirror element directly");
 assert.ok(contractSource.includes('querySelector("prose-mirror")'), "Contract editing must mount the standard Foundry prose-mirror element");
@@ -373,9 +379,16 @@ assert.ok(grimoireSource.includes('id: "ossuary"') && grimoireSource.includes('i
 assert.equal(auxiliaryCss.includes("gg-cover-aura"), false, "Reduced-motion rules must not retain removed aura selectors");
 assert.equal(auxiliaryCss.includes("gg-cover-wave"), false, "Reduced-motion rules must not retain removed wave selectors");
 assert.ok(auxiliaryCss.includes(".gg-safe-cast"), "Responsive rules must include Safe Casting");
+assert.equal(`${coverCss}
+${auxiliaryCss}`.includes("clip: rect"), false, "Stylesheets must not retain deprecated clip rectangles for visually-hidden controls");
+assert.equal(contractCss.includes('font-family: "Signika"'), false, "Contract CSS must use Stylelint-compatible single-word font-family syntax");
+assert.equal(ritualCss.includes('font-family: "Signika"'), false, "Ritual CSS must use Stylelint-compatible single-word font-family syntax");
+assert.equal(contractCss.includes("currentColor"), false, "Contract CSS keywords must use canonical lowercase casing");
 assert.ok(auxiliaryCss.includes(".gg-halo-orbit") && auxiliaryCss.includes(".gg-cathedral-chain"), "Reduced-motion rules must cover Halo and Cathedral entrance animations");
 assert.ok(uiInteractionsSource.includes("runtime.spellTooltipFrame = requestAnimationFrame"), "Spell tooltip movement must be frame-coalesced");
 assert.ok(grimoireSource.includes("constellationLayoutCache"), "Constellation geometry must use a bounded deterministic layout cache");
+assert.ok(grimoireSource.includes('data-gg-size="${Number(size).toFixed(2)}"'), "Moved constellation seals must expose their current geometry for persistence");
+assert.ok(grimoireSource.includes('for (const key of ["size", "rotation", "labelShift", "labelRotation"])'), "Moved constellation seals must persist size, rotation, and label geometry");
 assert.ok(castFxSource.includes("resolve?.();"), "Cast FX disposal must settle the active queue promise");
 assert.ok(audioSource.includes("durationPromise"), "Cast audio handles must expose the resolved audio duration");
 assert.ok(castFxSource.includes("castFxSoundDurationMultiplier"), "Cast sigil duration must use the configurable sound-duration multiplier");
@@ -410,6 +423,7 @@ assert.ok(authoritySource.includes("activeAuthoritativeGm"), "Shared GM authorit
 assert.ok(drawingSource.includes('"lostpointercapture"'), "Drawing must cancel safely on pointer-capture loss");
 assert.ok(drawingSource.includes("backingCanvas"), "Drawing must cache completed strokes in a backing canvas");
 assert.ok(drawingSource.includes("autoDraw(strokes"), "Drawing controller must expose auto-draw support");
+assert.ok(drawingSource.includes(".filter(Array.isArray).map((stroke)"), "Normalized auto-draw must ignore malformed non-array stroke entries");
 assert.ok(drawingSource.includes("if (destroyed) return;"), "Destroyed drawing controllers must not schedule new redraw frames");
 assert.equal(drawingSource.includes("animationReject"), false, "Auto-draw cancellation must not reject into detached UI handlers");
 assert.ok(drawingSource.includes("getCoalescedEvents"), "Drawing must consume coalesced pointer samples");

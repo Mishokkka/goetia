@@ -2,6 +2,9 @@
 
 ## 0.7.7
 
+- Addressed CodeRabbit review findings without changing intended UX: contract HTML is sanitized before rendering and persistence, spell tooltip text is extracted in an inert template, malformed auto-draw stroke entries are ignored, and moved constellation seals preserve their existing size/rotation/label geometry.
+- Replaced deprecated visually-hidden `clip` declarations and normalized stylesheet syntax with behavior-equivalent forms.
+- Preserved the documented consecutive-success Training rule; failed attempts intentionally reset accumulated high-rank training successes.
 - Added automatic Chance Casting enforcement whenever a spell's rank exceeds the actor's highest rank across all magic talents; spell school does not affect this comparison. Forced Chance Casting disables Safe Casting and counts as one automatic mishap unit.
 - Added authoritative mishap counting from active rolled 1s on spell dice, with Chance Casting contributing one additional mishap unit.
 - Added a dedicated GM settings palette for Mishap RollTables 0 through 6; casting draws exactly one table matching the total mishap units, with 6 acting as the 6+ ceiling, while level 0 remains available to Training.

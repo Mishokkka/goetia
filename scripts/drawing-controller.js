@@ -454,7 +454,7 @@ export function attachDrawing(canvas, options = {}) {
     metricsDirty = false;
     const pixelStrokes = boundedDrawingStrokes(
       normalized
-        ? (Array.isArray(strokes) ? strokes : []).map((stroke) => stroke.map((point) => ({
+        ? (Array.isArray(strokes) ? strokes : []).filter(Array.isArray).map((stroke) => stroke.map((point) => ({
             x: clamp(Number(point?.x) * metrics.rect.width, 0, metrics.rect.width),
             y: clamp(Number(point?.y) * metrics.rect.height, 0, metrics.rect.height)
           })))
