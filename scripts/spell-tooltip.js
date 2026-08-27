@@ -22,9 +22,9 @@ export function displaySpellName(spell) {
 }
 
 export function spellPlainText(value, maxLength = 520) {
-  const container = document.createElement("div");
-  container.innerHTML = String(value ?? "");
-  const text = String(container.textContent ?? "").replace(/\s+/g, " ").trim();
+  const template = document.createElement("template");
+  template.innerHTML = String(value ?? "");
+  const text = String(template.content.textContent ?? "").replace(/\s+/g, " ").trim();
   return text.length > maxLength ? `${text.slice(0, maxLength - 1).trimEnd()}…` : text;
 }
 

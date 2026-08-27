@@ -1,7 +1,7 @@
 import { setCastFxPresenter } from "./cast-network.js";
 import { MODULE_ID } from "./config.js";
 import { playConfiguredSound } from "./audio-service.js";
-import { sigilToSvgMarkup } from "./sigil.js";
+import { normalizeSigilForDisplay, sigilToSvgMarkup } from "./sigil.js";
 import { samplePoints } from "./drawing-controller.js";
 
 const MAX_FX_ENHANCEMENTS = 12;
@@ -124,6 +124,107 @@ function castEnhancementMarkup(enhancements) {
   }).join("");
 }
 
+function averagePoint(points) {
+  if (!points.length) return { x: 0.5, y: 0.5 };
+  const sum = points.reduce((accumulator, point) => ({
+    x: accumulator.x + point.x,
+    y: accumulator.y + point.y
+  }), { x: 0, y: 0 });
+  return { x: sum.x / points.length, y: sum.y / points.length };
+}
+
+function splitMishapSigil(strokes, severity = 1) {
+  const entries = Array.isArray(strokes) ? strokes.filter((stroke) => Array.isArray(stroke) && stroke.length >= 2) : [];
+  if (entries.length <= 1) return [{ strokes: entries, angle: -Math.PI / 2 }];
+  const allPoints = entries.flat();
+  const center = averagePoint(allPoints);
+  const shardCount = clamp(Math.min(entries.length, 2 + Math.ceil(severity / 2), 5), 2, 5);
+  const annotated = entries.map((stroke, index) => {
+    const point = averagePoint(stroke);
+    const angle = Math.atan2(point.y - center.y, point.x - center.x);
+    return { stroke, point, angle, index };
+  }).sort((left, right) => left.angle - right.angle || left.index - right.index);
+
+  const shards = Array.from({ length: shardCount }, () => []);
+  const baseSize = Math.floor(annotated.length / shardCount);
+  let remainder = annotated.length % shardCount;
+  let cursor = 0;
+  for (let index = 0; index < shardCount; index += 1) {
+    const size = baseSize + (remainder > 0 ? 1 : 0);
+    if (remainder > 0) remainder -= 1;
+    shards[index] = annotated.slice(cursor, cursor + size);
+    cursor += size;
+  }
+
+  return shards
+    .filter((group) => group.length)
+    .map((group) => {
+      const groupCenter = averagePoint(group.map((entry) => entry.point));
+      return {
+        strokes: group.map((entry) => entry.stroke),
+        angle: Math.atan2(groupCenter.y - center.y, groupCenter.x - center.x)
+      };
+    });
+}
+
+function randomBetween(min, max) {
+  return min + Math.random() * (max - min);
+}
+
+function castSigilMarkup(sigilStrokes, payload) {
+  const baseSigil = { seed: payload?.sigil?.seed ?? "cast", strokes: sigilStrokes };
+  if (!payload?.mishap) return sigilToSvgMarkup(baseSigil, { className: "gg-cast-fx-svg" });
+
+  const severity = clamp(Number(payload?.mishapSeverity) || 1, 1, 6);
+  const displaySigil = normalizeSigilForDisplay(baseSigil);
+  const distance = 7 + severity * 2.15;
+  const rotation = 1.4 + severity * 0.6;
+  const wander = 2.4 + severity * 0.7;
+  const shards = splitMishapSigil(displaySigil.strokes, severity);
+
+  return `<div class="gg-cast-fx-shards">${shards.map((shard, index) => {
+    const dx = Math.cos(shard.angle) * distance;
+    const dy = Math.sin(shard.angle) * distance;
+    const rotate = ((index % 2 === 0 ? 1 : -1) * rotation) + (Math.sin(shard.angle) * 0.75);
+    const outwardDelay = Math.min(0.24, index * 0.025);
+    const wanderDuration = randomBetween(1.25, 2.25);
+    const wanderDelay = -randomBetween(0, wanderDuration);
+    const x1 = randomBetween(-wander, wander);
+    const y1 = randomBetween(-wander, wander);
+    const x2 = randomBetween(-wander, wander);
+    const y2 = randomBetween(-wander, wander);
+    const x3 = randomBetween(-wander, wander);
+    const y3 = randomBetween(-wander, wander);
+    const r1 = randomBetween(-rotation, rotation);
+    const r2 = randomBetween(-rotation, rotation);
+    const r3 = randomBetween(-rotation, rotation);
+    const shardSigil = {
+      seed: `${baseSigil.seed}:mishap:${index}`,
+      displayNormalized: true,
+      displayPadding: displaySigil.displayPadding,
+      strokes: shard.strokes
+    };
+    const style = [
+      `--gg-shard-dx:${dx.toFixed(2)}px`,
+      `--gg-shard-dy:${dy.toFixed(2)}px`,
+      `--gg-shard-rot:${rotate.toFixed(2)}deg`,
+      `--gg-shard-delay:${outwardDelay.toFixed(2)}s`,
+      `--gg-wander-duration:${wanderDuration.toFixed(2)}s`,
+      `--gg-wander-delay:${wanderDelay.toFixed(2)}s`,
+      `--gg-wander-x1:${x1.toFixed(2)}px`,
+      `--gg-wander-y1:${y1.toFixed(2)}px`,
+      `--gg-wander-x2:${x2.toFixed(2)}px`,
+      `--gg-wander-y2:${y2.toFixed(2)}px`,
+      `--gg-wander-x3:${x3.toFixed(2)}px`,
+      `--gg-wander-y3:${y3.toFixed(2)}px`,
+      `--gg-wander-r1:${r1.toFixed(2)}deg`,
+      `--gg-wander-r2:${r2.toFixed(2)}deg`,
+      `--gg-wander-r3:${r3.toFixed(2)}deg`
+    ].join(";");
+    return `<div class="gg-cast-fx-shard" style="${style}"><div class="gg-cast-fx-shard-motion">${sigilToSvgMarkup(shardSigil, { className: "gg-cast-fx-svg" })}</div></div>`;
+  }).join("")}</div>`;
+}
+
 function disposeCastFx(state) {
   if (!state || state.disposed) return;
   state.disposed = true;
@@ -184,10 +285,9 @@ function playCastFx(payload) {
     overlay.style.setProperty("--gg-mishap-speed", `${twistSpeed.toFixed(2)}s`);
     overlay.style.setProperty("--gg-mishap-warp-speed", `${(twistSpeed * 0.74).toFixed(2)}s`);
   }
-  const sigil = { seed: payload?.sigil?.seed ?? "cast", strokes: sigilStrokes };
   overlay.innerHTML = `
     <div class="gg-cast-fx-stage">
-      <div class="gg-cast-fx-sigil">${sigilToSvgMarkup(sigil, { className: "gg-cast-fx-svg" })}</div>
+      <div class="gg-cast-fx-sigil${payload?.mishap ? " is-shattered" : ""}">${castSigilMarkup(sigilStrokes, payload)}</div>
       <div class="gg-cast-fx-enhancements">${castEnhancementMarkup(enhancements)}</div>
     </div>
     <div class="gg-cast-fx-label">${escapeHtml(payload.actorName ?? "")} — ${escapeHtml(payload.spellName ?? "")}</div>`;

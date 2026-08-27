@@ -689,6 +689,7 @@ function organicConstellationLayout(spells, seedValue, width = 1000, height = 57
         spell.id,
         stored && Number.isFinite(Number(stored.x)) ? Number(stored.x) : null,
         stored && Number.isFinite(Number(stored.y)) ? Number(stored.y) : null,
+        stored && Number.isFinite(Number(stored.size)) ? Number(stored.size) : null,
         stored && Number.isFinite(Number(stored.rotation)) ? Number(stored.rotation) : null,
         stored && Number.isFinite(Number(stored.labelShift)) ? Number(stored.labelShift) : null,
         stored && Number.isFinite(Number(stored.labelRotation)) ? Number(stored.labelRotation) : null
@@ -721,7 +722,7 @@ function organicConstellationLayout(spells, seedValue, width = 1000, height = 57
         spell,
         x: clamp(Number(stored.x), 95, 915),
         y: clamp(Number(stored.y), 72, height - 68),
-        size: highRank ? 112 : 88,
+        size: Number.isFinite(Number(stored.size)) ? clamp(Number(stored.size), 40, 160) : (highRank ? 112 : 88),
         rotation: Number(stored.rotation) || 0,
         labelShift: Number(stored.labelShift) || 0,
         labelRotation: Number(stored.labelRotation) || 0,
@@ -834,6 +835,7 @@ function constellationMarkup(runtime) {
     const sigil = spellSigil(runtime.actor, spell);
     return `
       <button type="button" class="gg-spell-node gg-node-${index % 5} ${custom ? "is-custom-position" : ""}" data-spell-id="${escapeHtml(spell.id)}"
+        data-gg-size="${Number(size).toFixed(2)}" data-gg-rot="${Number(rotation).toFixed(2)}" data-gg-label-shift="${Number(labelShift).toFixed(2)}" data-gg-label-rot="${Number(labelRotation).toFixed(2)}"
         style="left:${(x / 10).toFixed(2)}%;top:${(y / 5.7).toFixed(2)}%;--gg-size:${size}px;--gg-rot:${rotation.toFixed(2)}deg;--gg-label-shift:${labelShift}px;--gg-label-rot:${labelRotation.toFixed(2)}deg">
         <span class="gg-node-ring">${sigilToSvgMarkup(sigil, { className: "gg-node-sigil" })}</span>
         <span class="gg-node-label">${escapeHtml(spellName(spell))}</span>
@@ -986,9 +988,18 @@ async function openSpellSheet(spell) {
   }
 }
 
-async function saveSpellPosition(runtime, spellId, x, y) {
+async function saveSpellPosition(runtime, spellId, x, y, geometry = {}) {
   const positions = foundry.utils.deepClone(runtime.actor.getFlag(MODULE_ID, "spellPositions") ?? {});
-  positions[spellId] = { x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10 };
+  const preservedGeometry = { ...(positions[spellId] ?? {}) };
+  for (const key of ["size", "rotation", "labelShift", "labelRotation"]) {
+    const value = Number(geometry[key]);
+    if (Number.isFinite(value)) preservedGeometry[key] = value;
+  }
+  positions[spellId] = {
+    ...preservedGeometry,
+    x: Math.round(x * 10) / 10,
+    y: Math.round(y * 10) / 10
+  };
   await runtime.actor.update({ [`flags.${MODULE_ID}.spellPositions`]: positions }, { render: false });
 }
 
@@ -1088,7 +1099,12 @@ function beginSpellMove(runtime, node) {
       if (node.hasPointerCapture?.(pointerId)) node.releasePointerCapture?.(pointerId);
     } catch (_error) {}
     try {
-      await saveSpellPosition(runtime, spellId, x, y);
+      await saveSpellPosition(runtime, spellId, x, y, {
+        size: node.dataset.ggSize,
+        rotation: node.dataset.ggRot,
+        labelShift: node.dataset.ggLabelShift,
+        labelRotation: node.dataset.ggLabelRot
+      });
     } catch (error) {
       console.error("Goetia Grimoire | Failed to save spell position.", error);
       ui.notifications.error(localize("GG.PositionSaveFailed", "Unable to save the seal position."));

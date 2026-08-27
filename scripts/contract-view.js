@@ -3,6 +3,103 @@ import { playConfiguredSound } from "./audio-service.js";
 
 const CONTRACT_COLUMN_GAP = 42;
 
+const CONTRACT_ALLOWED_TAGS = new Set([
+  "a", "article", "audio", "b", "blockquote", "br", "canvas", "caption", "code", "col", "colgroup",
+  "dd", "details", "div", "dl", "dt", "em", "figcaption", "figure", "footer", "h1", "h2", "h3", "h4",
+  "h5", "h6", "header", "hr", "i", "iframe", "img", "kbd", "li", "mark", "ol", "p", "pre", "s", "samp",
+  "section", "small", "source", "span", "strike", "strong", "sub", "summary", "sup", "table", "tbody", "td",
+  "tfoot", "th", "thead", "tr", "u", "ul", "var", "video",
+  "svg", "g", "path", "circle", "ellipse", "line", "polyline", "polygon", "rect", "text", "tspan", "defs", "use",
+  "symbol", "title", "desc"
+]);
+
+const CONTRACT_DROP_TAGS = new Set(["script", "style", "link", "meta", "base", "object", "embed", "applet", "noscript", "template"]);
+const CONTRACT_ALLOWED_ATTRIBUTES = new Set([
+  "allow", "allowfullscreen", "alt", "autoplay", "caption-side", "class", "colspan", "controls", "decoding", "d",
+  "fill", "height", "href", "loading", "loop", "muted", "open", "playsinline", "points", "poster", "preload",
+  "preserveaspectratio", "referrerpolicy", "rel", "reversed", "rowspan", "scope", "src", "start", "stroke",
+  "stroke-linecap", "stroke-linejoin", "stroke-width", "style", "target", "title", "transform", "value", "viewbox",
+  "width", "x", "x1", "x2", "xlink:href", "y", "y1", "y2", "cx", "cy", "r", "rx", "ry", "opacity"
+]);
+const CONTRACT_SAFE_STYLE_PROPERTIES = new Set(["text-align", "text-decoration", "font-style", "font-weight", "vertical-align", "list-style-type"]);
+
+function safeContractUrl(value, { tagName = "", attributeName = "" } = {}) {
+  const source = String(value ?? "").trim();
+  if (!source) return "";
+  if (source.startsWith("#")) return source;
+  const schemeProbe = source.replace(/[\u0000-\u0020\u007f]+/g, "");
+  const scheme = schemeProbe.match(/^([a-z][a-z0-9+.-]*):/i)?.[1]?.toLowerCase();
+  if (!scheme) return source;
+  if (["http", "https", "blob"].includes(scheme)) return source;
+  if (["href", "xlink:href"].includes(attributeName) && ["mailto", "tel"].includes(scheme)) return source;
+  if (scheme === "data" && tagName === "img" && attributeName === "src" && /^data:image\/(?:png|jpe?g|gif|webp);base64,/i.test(source)) return source;
+  return "";
+}
+
+function sanitizeContractStyle(value) {
+  const declarations = [];
+  for (const part of String(value ?? "").split(";")) {
+    const separator = part.indexOf(":");
+    if (separator < 1) continue;
+    const property = part.slice(0, separator).trim().toLowerCase();
+    const rawValue = part.slice(separator + 1).trim();
+    if (!CONTRACT_SAFE_STYLE_PROPERTIES.has(property) || !rawValue) continue;
+    if (!/^[a-z0-9\s.,%()+\-]+$/i.test(rawValue)) continue;
+    declarations.push(`${property}: ${rawValue}`);
+  }
+  return declarations.join("; ");
+}
+
+function sanitizeContractHtml(value) {
+  const source = String(value ?? "");
+  if (!source || !globalThis.document?.createElement) return source;
+  const template = document.createElement("template");
+  template.innerHTML = source;
+
+  for (const element of Array.from(template.content.querySelectorAll("*"))) {
+    const tagName = element.tagName.toLowerCase();
+    if (CONTRACT_DROP_TAGS.has(tagName)) {
+      element.remove();
+      continue;
+    }
+    if (!CONTRACT_ALLOWED_TAGS.has(tagName)) {
+      element.replaceWith(...element.childNodes);
+      continue;
+    }
+
+    for (const attribute of Array.from(element.attributes)) {
+      const name = attribute.name.toLowerCase();
+      if (name.startsWith("on") || ["srcdoc", "formaction", "action", "ping", "nonce", "contenteditable", "autofocus"].includes(name)) {
+        element.removeAttribute(attribute.name);
+        continue;
+      }
+      if (!(CONTRACT_ALLOWED_ATTRIBUTES.has(name) || name.startsWith("data-") || name.startsWith("aria-"))) {
+        element.removeAttribute(attribute.name);
+        continue;
+      }
+      if (["href", "src", "poster", "xlink:href"].includes(name)) {
+        const safe = safeContractUrl(attribute.value, { tagName, attributeName: name });
+        if (safe) element.setAttribute(attribute.name, safe);
+        else element.removeAttribute(attribute.name);
+        continue;
+      }
+      if (name === "style") {
+        const safeStyle = sanitizeContractStyle(attribute.value);
+        if (safeStyle) element.setAttribute("style", safeStyle);
+        else element.removeAttribute("style");
+      }
+    }
+
+    if (tagName === "a" && element.getAttribute("target") === "_blank") {
+      const rel = new Set(String(element.getAttribute("rel") ?? "").split(/\s+/).filter(Boolean));
+      rel.add("noopener");
+      rel.add("noreferrer");
+      element.setAttribute("rel", [...rel].join(" "));
+    }
+  }
+  return template.innerHTML;
+}
+
 function localize(key, fallback) {
   const value = game.i18n.localize(key);
   return value === key ? fallback : value;
@@ -196,7 +293,7 @@ async function contractEditorContent(runtime) {
 }
 
 export async function contractMarkup(runtime) {
-  const source = contractSource(runtime.actor);
+  const source = sanitizeContractHtml(contractSource(runtime.actor));
   runtime.contractRawSource = source;
   const fallback = `<p class="gg-contract-empty">${escapeHtml(localize("GG.NoContract", "No contract has been written."))}</p>`;
   let enriched;
@@ -382,7 +479,7 @@ export function bindContractEditor(runtime, { rerender } = {}) {
     try {
       if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
       await Promise.resolve();
-      const content = (await contractEditorContent(runtime)).trim();
+      const content = sanitizeContractHtml(await contractEditorContent(runtime)).trim();
       await runtime.actor.update({ [`flags.${MODULE_ID}.contractHtml`]: content }, { render: false });
       runtime.contractRawSource = content;
       runtime.contractCache = null;

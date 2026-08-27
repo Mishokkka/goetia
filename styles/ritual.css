@@ -360,7 +360,7 @@
   color: #eee5d8 !important;
   border: 1px solid rgba(133, 89, 86, 0.55) !important;
   background: #100b0e !important;
-  font-family: "Signika", sans-serif !important;
+  font-family: Signika, sans-serif !important;
   font-size: 11px;
 }
 
@@ -544,7 +544,7 @@
   border: 1px solid rgba(134, 54, 61, 0.46);
   border-radius: 50%;
   background: rgba(7, 4, 6, 0.86);
-  font-family: "Signika", sans-serif !important;
+  font-family: Signika, sans-serif !important;
   font-size: 13px;
   letter-spacing: 0.08em;
   text-shadow: 0 0 8px rgba(150, 0, 20, 0.72);
@@ -600,7 +600,7 @@
   z-index: 3;
   bottom: -13px;
   color: rgba(202, 189, 173, 0.5);
-  font-family: "Signika", sans-serif !important;
+  font-family: Signika, sans-serif !important;
   font-size: 8px;
   pointer-events: none;
 }
