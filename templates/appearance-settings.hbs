@@ -1,0 +1,30 @@
+<form class="gg-font-settings-form flexcol" autocomplete="off">
+  <div class="form-group">
+    <label>{{localize "GG.Settings.FontMode"}}</label>
+    <select name="fontMode">
+      <option value="foundry" {{#if (eq mode "foundry")}}selected{{/if}}>{{localize "GG.Settings.FontModeFoundry"}}</option>
+      <option value="custom" {{#if (eq mode "custom")}}selected{{/if}}>{{localize "GG.Settings.FontModeCustom"}}</option>
+    </select>
+    <p class="notes">{{localize "GG.Settings.AppearanceModeHint"}}</p>
+  </div>
+  <div class="form-group">
+    <label>{{localize "GG.Settings.FontChoice"}}</label>
+    <select name="fontFamily">
+      {{#each fonts as |font|}}
+      <option value="{{font}}" {{#if (eq ../fontFamily font)}}selected{{/if}}>{{font}}</option>
+      {{/each}}
+    </select>
+    <p class="notes">{{localize "GG.Settings.FontChoiceHint"}}</p>
+  </div>
+  <div class="form-group">
+    <label>{{localize "GG.Settings.FontPath"}}</label>
+    <div class="form-fields">
+      <input type="text" name="fontPath" value="{{fontPath}}" placeholder="fonts/grimoire.woff2">
+      <button type="button" class="gg-font-browse"><i class="fas fa-file-import"></i></button>
+    </div>
+    <p class="notes">{{localize "GG.Settings.FontPathHint"}}</p>
+  </div>
+  <footer class="sheet-footer flexrow">
+    <button type="submit"><i class="fas fa-save"></i> {{localize "GG.Save"}}</button>
+  </footer>
+</form>

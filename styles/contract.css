@@ -1,0 +1,578 @@
+/* -------------------------------------------------------------------------- */
+/* Contract reader                                                            */
+/* -------------------------------------------------------------------------- */
+
+.gg-contract-page {
+  position: absolute;
+  inset: 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.gg-contract-reader {
+  position: absolute;
+  z-index: 2;
+  inset: 8px 10px 12px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.gg-contract-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  contain: layout paint;
+}
+
+/* The complete contract is laid out once by Chromium's multicolumn engine.
+   Page turns only reposition the already-laid-out flow. This avoids the old
+   word-by-word cloning and height probing that stalled the Foundry UI. */
+.gg-contract-flow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 0;
+  min-height: 0;
+  padding: 8px 12px 24px;
+  overflow: visible;
+  color: #ddd4c7;
+  column-count: 2;
+  column-gap: 70px;
+  column-fill: auto;
+  column-rule: 0;
+  font-family: var(--gg-font-family);
+  font-size: 12px;
+  line-height: 1.42;
+  overflow-wrap: anywhere;
+}
+
+.gg-contract-flow :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0.6em 0 0.35em;
+  color: #e7dfd3;
+  font-weight: 400;
+  line-height: 1.15;
+  break-after: avoid-column;
+}
+
+
+.gg-contract-flow :is(p, ul, ol, blockquote, table) {
+  margin: 0 0 0.65em;
+}
+
+.gg-contract-flow :is(ul, ol) {
+  padding-left: 1.25em;
+}
+
+.gg-contract-flow li {
+  margin-bottom: 0.28em;
+}
+
+.gg-contract-flow :is(img, video, iframe, svg, canvas, table, blockquote) {
+  max-width: 100% !important;
+  break-inside: avoid-column;
+}
+
+.gg-contract-flow img,
+.gg-contract-flow video,
+.gg-contract-flow iframe {
+  max-height: 78%;
+  object-fit: contain;
+}
+
+.gg-contract-flow table {
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.gg-contract-flow td,
+.gg-contract-flow th {
+  padding: 2px 4px;
+  border: 1px solid rgba(142, 105, 96, 0.22);
+}
+
+.gg-contract-flow a {
+  color: #d6a6a1;
+}
+
+.gg-contract-empty {
+  opacity: 0.54;
+  text-align: center;
+}
+
+.gg-contract-end-marker {
+  display: inline-block;
+  width: 1px;
+  height: 1px;
+  vertical-align: bottom;
+}
+
+.gg-contract-page-number {
+  position: absolute;
+  bottom: 2px;
+  width: calc(50% - 4px);
+  color: rgba(190, 173, 158, 0.38);
+  font-family: "Signika", sans-serif !important;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.gg-contract-page-number-left {
+  left: 0;
+}
+
+.gg-contract-page-number-right {
+  right: 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Page controls                                                              */
+/* -------------------------------------------------------------------------- */
+
+.gg-contract-nav {
+  position: absolute;
+  z-index: 8;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.gg-contract-nav .gg-icon-button {
+  position: absolute;
+  bottom: 0;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  font-size: 11px;
+  pointer-events: auto;
+}
+
+.gg-contract-prev { left: 0; }
+.gg-contract-next { right: 0; }
+
+
+.gg-contract-edit {
+  position: absolute;
+  z-index: 12;
+  top: 0;
+  left: 0;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #d8cfc2 !important;
+  border: 1px solid rgba(91, 54, 59, 0.74) !important;
+  border-radius: 0 0 4px 0 !important;
+  background: rgba(8, 6, 9, 0.9) !important;
+}
+
+.gg-contract-edit:hover,
+.gg-contract-edit:focus-visible {
+  color: #fff0dc !important;
+  border-color: rgba(139, 79, 82, 0.9) !important;
+  background: rgba(45, 13, 20, 0.96) !important;
+  outline: none;
+}
+
+.gg-contract-edit-icon {
+  width: 14px;
+  height: 14px;
+  color: inherit;
+  overflow: visible;
+}
+
+.gg-contract-editor-heading i,
+.gg-contract-edit-tools i {
+  color: inherit !important;
+  font-family: var(--fa-style-family-classic, "Font Awesome 6 Pro"), "Font Awesome 6 Pro", "Font Awesome 6 Free", "Font Awesome 5 Free" !important;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* GM editor                                                                  */
+/* -------------------------------------------------------------------------- */
+
+.gg-contract-editor-shell {
+  position: absolute;
+  z-index: 18;
+  inset: 8px 12px 10px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid rgba(108, 72, 70, 0.48);
+  border-radius: 5px;
+  background: rgba(5, 3, 6, 0.97);
+  box-shadow: inset 0 0 26px #000, 0 12px 28px rgba(0, 0, 0, 0.76);
+}
+
+.gg-contract-editor-shell[hidden] {
+  display: none !important;
+}
+
+.gg-contract-editor-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+}
+
+.gg-contract-editor-heading strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #e3d9cc !important;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gg-contract-edit-tools {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.gg-contract-edit-tools button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: auto !important;
+  min-height: 30px;
+  margin: 0 !important;
+  padding: 5px 11px !important;
+  color: #d5ccbf !important;
+  border: 1px solid #4b2c32 !important;
+  border-radius: 3px !important;
+  background: #09070a !important;
+}
+
+.gg-contract-edit-tools button:hover,
+.gg-contract-edit-tools button:focus-visible {
+  color: #fff0dc !important;
+  border-color: #7d454d !important;
+  background: #241016 !important;
+  outline: none;
+}
+
+
+.gg-overlay.is-contract-tab .gg-contract-edit {
+  top: 0;
+  left: 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Rich contract content                                                      */
+/* -------------------------------------------------------------------------- */
+
+.gg-contract-flow {
+  font-family: var(--gg-font-family);
+}
+
+.gg-contract-flow :is(h1, h2, h3, h4, h5, h6) {
+  color: #e7dfd3;
+}
+
+.gg-contract-flow strong { color: #efe5d8; }
+.gg-contract-flow em { color: #d9c8ba; }
+.gg-contract-flow u { text-decoration-color: rgba(177, 87, 91, .72); text-underline-offset: .16em; }
+
+.gg-contract-flow blockquote {
+  padding: .42em .75em;
+  color: rgba(224, 211, 198, .86);
+  border-left: 2px solid rgba(143, 57, 65, .72);
+  background: rgba(47, 17, 24, .18);
+}
+
+.gg-contract-flow hr {
+  height: 1px;
+  margin: .85em 0;
+  border: 0;
+  background: linear-gradient(90deg, transparent, rgba(139, 75, 77, .58), transparent);
+}
+
+.gg-contract-flow :is(code, pre) {
+  color: #ddcbb9;
+  background: rgba(0, 0, 0, .24);
+}
+
+.gg-contract-flow pre {
+  padding: .55em .7em;
+  overflow: hidden;
+  white-space: pre-wrap;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Standard Foundry contract editor                                           */
+/* -------------------------------------------------------------------------- */
+
+.gg-contract-editor-shell {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.gg-contract-editor-heading {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.gg-contract-editor-status {
+  position: relative;
+  z-index: 2;
+  grid-row: 2;
+  grid-column: 1;
+  align-self: start;
+  min-height: 22px;
+  padding: 4px 8px;
+  color: rgba(213, 198, 185, .7);
+  border: 1px solid rgba(93, 60, 62, .38);
+  border-radius: 3px;
+  background: rgba(0, 0, 0, .24);
+  font-size: 10px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.gg-contract-editor-status[hidden] {
+  display: none !important;
+}
+
+.gg-contract-standard-editor {
+  grid-row: 2;
+  grid-column: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.gg-contract-standard-editor > :is(.editor, prose-mirror),
+.gg-contract-standard-editor > .editor > prose-mirror {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+}
+
+.gg-contract-editor-fallback {
+  grid-row: 2;
+  grid-column: 1;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 14px 16px;
+  resize: none;
+  overflow: auto;
+  color: #ddd4c7 !important;
+  border: 1px solid rgba(108, 72, 70, .48) !important;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, .28) !important;
+  box-shadow: inset 0 0 18px #000 !important;
+  font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace !important;
+  font-size: 12px;
+  line-height: 1.45;
+  outline: none;
+  scrollbar-color: #4c2c31 transparent;
+}
+
+.gg-contract-editor-fallback[hidden] {
+  display: none !important;
+}
+
+.gg-contract-flow :is(strong, b) {
+  color: #efe5d8;
+  font-weight: 700;
+}
+
+.gg-contract-flow :is(em, i) {
+  color: #d9c8ba;
+  font-style: italic;
+}
+
+.gg-contract-flow :is(s, strike, del) {
+  text-decoration: line-through;
+  text-decoration-color: rgba(177, 87, 91, .72);
+}
+
+.gg-contract-flow mark {
+  padding: 0 .12em;
+  color: inherit;
+  background: rgba(140, 92, 45, .38);
+}
+
+.gg-contract-flow [style*="text-align: center"] { text-align: center; }
+.gg-contract-flow [style*="text-align: right"] { text-align: right; }
+.gg-contract-flow [style*="text-align: justify"] { text-align: justify; }
+
+
+/* Keep the core Foundry editor legible inside the grimoire's dark overlay.
+   The ProseMirror custom element inherits application theme variables, so an
+   unscoped dark palette makes the stock toolbar render black-on-black. */
+.gg-contract-standard-editor,
+.gg-contract-standard-editor prose-mirror,
+.gg-contract-standard-editor .editor {
+  --color-text-primary: #20252d;
+  --color-text-secondary: #4a505a;
+  --color-text-subtle: #656b74;
+  --color-text-dark-primary: #20252d;
+  --color-text-dark-secondary: #4a505a;
+  --color-text-light-primary: #f6f2e9;
+  --color-border-light-primary: #c6c9ce;
+  --color-border-light-secondary: #d9dbdf;
+  --color-border-dark-primary: #777d86;
+  --color-shadow-primary: rgba(93, 25, 33, .42);
+  --color-warm-1: #7f3039;
+  --color-warm-2: #9a424c;
+  color-scheme: light;
+}
+
+.gg-contract-standard-editor > :is(.editor, prose-mirror),
+.gg-contract-standard-editor > .editor > prose-mirror {
+  overflow: hidden;
+  color: #20252d !important;
+  border: 1px solid #bbbfc6;
+  border-radius: 4px;
+  background: #f4f2ee !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .18), inset 0 1px 0 rgba(255, 255, 255, .72);
+}
+
+.gg-contract-standard-editor prose-mirror {
+  display: flex !important;
+  flex-direction: column;
+  min-height: 0;
+  font-family: "Signika", sans-serif;
+}
+
+.gg-contract-standard-editor prose-mirror > menu,
+.gg-contract-standard-editor prose-mirror .editor-menu,
+.gg-contract-standard-editor .editor-menu {
+  flex: 0 0 auto;
+  min-height: 42px;
+  margin: 0 !important;
+  padding: 5px 7px !important;
+  color: #20252d !important;
+  border: 0 !important;
+  border-bottom: 1px solid #c7cacf !important;
+  background: #f1f0ed !important;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .7);
+}
+
+.gg-contract-standard-editor prose-mirror :is(button, select, input),
+.gg-contract-standard-editor .editor-menu :is(button, select, input) {
+  color: #20252d !important;
+  border-color: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.gg-contract-standard-editor prose-mirror select,
+.gg-contract-standard-editor .editor-menu select {
+  min-height: 28px;
+  padding: 2px 24px 2px 7px !important;
+  border-radius: 3px !important;
+}
+
+.gg-contract-standard-editor prose-mirror :is(button, select):hover,
+.gg-contract-standard-editor prose-mirror :is(button, select):focus-visible,
+.gg-contract-standard-editor prose-mirror button.active,
+.gg-contract-standard-editor prose-mirror button[aria-pressed="true"],
+.gg-contract-standard-editor .editor-menu :is(button, select):hover,
+.gg-contract-standard-editor .editor-menu :is(button, select):focus-visible,
+.gg-contract-standard-editor .editor-menu button.active,
+.gg-contract-standard-editor .editor-menu button[aria-pressed="true"] {
+  color: #5b1822 !important;
+  border-color: rgba(127, 48, 57, .5) !important;
+  background: rgba(127, 48, 57, .1) !important;
+  outline: none !important;
+}
+
+.gg-contract-standard-editor prose-mirror button:disabled,
+.gg-contract-standard-editor .editor-menu button:disabled {
+  color: #8b9098 !important;
+  opacity: .52 !important;
+}
+
+.gg-contract-standard-editor prose-mirror :is(i, svg),
+.gg-contract-standard-editor .editor-menu :is(i, svg) {
+  color: currentColor !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.gg-contract-standard-editor prose-mirror svg :is(path, circle, rect, line, polyline, polygon),
+.gg-contract-standard-editor .editor-menu svg :is(path, circle, rect, line, polyline, polygon) {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.gg-contract-standard-editor prose-mirror :is(i, .fa, .fas, .far, .fal, .fat, .fad, .fa-solid, .fa-regular, .fa-light, .fa-thin, .fa-duotone, [class^="fa-"], [class*=" fa-"]),
+.gg-contract-standard-editor .editor-menu :is(i, .fa, .fas, .far, .fal, .fat, .fad, .fa-solid, .fa-regular, .fa-light, .fa-thin, .fa-duotone, [class^="fa-"], [class*=" fa-"]) {
+  font-family: var(--fa-style-family-classic, "Font Awesome 6 Pro"), "Font Awesome 6 Pro", "Font Awesome 6 Free", "Font Awesome 5 Free" !important;
+  font-weight: 900 !important;
+}
+
+.gg-contract-standard-editor prose-mirror button[class*="fa-"]::before,
+.gg-contract-standard-editor prose-mirror button[class*="fa-"]::after,
+.gg-contract-standard-editor .editor-menu button[class*="fa-"]::before,
+.gg-contract-standard-editor .editor-menu button[class*="fa-"]::after {
+  color: currentColor !important;
+  font-family: var(--fa-style-family-classic, "Font Awesome 6 Pro"), "Font Awesome 6 Pro", "Font Awesome 6 Free", "Font Awesome 5 Free" !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+}
+
+.gg-contract-standard-editor prose-mirror option,
+.gg-contract-standard-editor .editor-menu option {
+  color: #20252d !important;
+  background: #fff !important;
+}
+
+.gg-contract-standard-editor prose-mirror > .editor-content,
+.gg-contract-standard-editor prose-mirror .editor-content,
+.gg-contract-standard-editor .editor-content,
+.gg-contract-standard-editor .ProseMirror {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto !important;
+  color: #1d2229 !important;
+  background: #fff !important;
+  caret-color: #5b1822;
+  font-family: "Signika", sans-serif !important;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.gg-contract-standard-editor .ProseMirror {
+  min-height: 100%;
+  padding: 14px 16px 34px !important;
+  outline: none !important;
+}
+
+.gg-contract-standard-editor .ProseMirror :is(h1, h2, h3, h4, h5, h6, p, li, blockquote, td, th) {
+  color: inherit;
+}
+
+.gg-contract-standard-editor .ProseMirror a {
+  color: #6e2230;
+}
+
+.gg-contract-standard-editor .ProseMirror ::selection {
+  color: #11161c;
+  background: rgba(127, 48, 57, .24);
+}

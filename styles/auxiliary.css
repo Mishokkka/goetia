@@ -1,0 +1,625 @@
+/* -------------------------------------------------------------------------- */
+/* Settings windows                                                           */
+/* -------------------------------------------------------------------------- */
+
+.gg-font-settings-form .gg-font-browse {
+  flex: 0 0 34px;
+}
+
+#goetia-grimoire-audio-settings .window-content,
+#goetia-grimoire-audio-settings .standard-form {
+  padding: 0;
+  overflow: hidden;
+  color: #ddd4ca !important;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(106, 24, 35, .16), transparent 34%),
+    linear-gradient(145deg, #17131a, #09080c 62%, #121016) !important;
+}
+
+.gg-audio-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  color: #ddd4ca !important;
+  color-scheme: dark;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(106, 24, 35, .12), transparent 34%),
+    linear-gradient(145deg, #17131a, #09080c 62%, #121016);
+  font-family: var(--font-primary);
+}
+
+.gg-audio-panel input,
+.gg-audio-panel select,
+.gg-audio-panel option,
+.gg-audio-panel output,
+.gg-audio-panel button {
+  color-scheme: dark;
+}
+
+.gg-audio-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 18px 13px;
+  border-bottom: 1px solid rgba(142, 92, 92, .22);
+  background: rgba(255, 255, 255, .018);
+}
+
+.gg-audio-panel-header h2 {
+  margin: 0;
+  color: #f0e6dc;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+
+.gg-audio-panel-header p {
+  margin: 3px 0 0;
+  color: rgba(221, 210, 200, .58);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.gg-audio-permission {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  color: rgba(220, 205, 194, .7);
+  border: 1px solid rgba(128, 86, 86, .28);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .22);
+  font-size: 9px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.gg-audio-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 9px;
+  min-height: 0;
+  padding: 12px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(141, 47, 58, .75) transparent;
+}
+
+.gg-audio-card {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid rgba(131, 88, 88, .25);
+  border-radius: 9px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, .035), transparent 42%),
+    rgba(7, 6, 10, .54);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .025), 0 7px 18px rgba(0, 0, 0, .16);
+}
+
+.gg-audio-card-header {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.gg-audio-card-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  color: #d8bdaf;
+  border: 1px solid rgba(145, 73, 80, .36);
+  border-radius: 8px;
+  background: radial-gradient(circle, rgba(113, 23, 34, .34), rgba(19, 10, 15, .72));
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, .45);
+  font-size: 13px;
+}
+
+.gg-audio-card-title {
+  min-width: 0;
+}
+
+.gg-audio-card-title strong,
+.gg-audio-card-title span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gg-audio-card-title strong {
+  color: #e9dfd5;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.gg-audio-card-title span {
+  margin-top: 2px;
+  color: rgba(217, 205, 194, .5);
+  font-size: 9px;
+}
+
+.gg-audio-switch {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.gg-audio-switch input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gg-audio-switch span {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(148, 132, 127, .34);
+  border-radius: 999px;
+  background: rgba(98, 94, 98, .28);
+  transition: background .16s ease, border-color .16s ease;
+}
+
+.gg-audio-switch span::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #b9b2ad;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .55);
+  transition: transform .16s ease, background .16s ease;
+}
+
+.gg-audio-switch input:checked + span {
+  border-color: rgba(170, 54, 66, .78);
+  background: linear-gradient(90deg, #57101a, #8d1e2d);
+}
+
+.gg-audio-switch input:checked + span::after {
+  transform: translateX(16px);
+  background: #f1ded2;
+}
+
+.gg-audio-switch input:focus-visible + span {
+  outline: 2px solid rgba(194, 82, 94, .68);
+  outline-offset: 2px;
+}
+
+.gg-audio-volume-control,
+.gg-audio-playlist-control,
+.gg-audio-file-control {
+  display: grid;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.gg-audio-volume-control {
+  grid-template-columns: 14px minmax(0, 1fr) 37px 28px;
+}
+
+.gg-audio-volume-control > i {
+  color: rgba(215, 199, 188, .52);
+  font-size: 10px;
+  text-align: center;
+}
+
+.gg-audio-volume-control input[type="range"] {
+  width: 100%;
+  min-width: 0;
+  height: 4px;
+  margin: 0;
+  accent-color: #a42334;
+}
+
+.gg-audio-volume-control output {
+  color: rgba(231, 218, 207, .72);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.gg-audio-playlist-control {
+  grid-template-columns: 14px minmax(0, 1fr);
+}
+
+.gg-audio-playlist-control > i {
+  color: rgba(215, 199, 188, .52);
+  font-size: 10px;
+  text-align: center;
+}
+
+.gg-audio-playlist-control select {
+  width: 100%;
+  min-width: 0;
+  height: 28px;
+  margin: 0 !important;
+  padding: 3px 28px 3px 8px !important;
+  color: #ddd4ca !important;
+  border: 1px solid rgba(119, 91, 90, .3) !important;
+  border-radius: 6px !important;
+  background: #0d0b10 !important;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, .34) !important;
+  font-size: 9px;
+  line-height: 1.2;
+}
+
+.gg-audio-playlist-control select:hover:not(:disabled),
+.gg-audio-playlist-control select:focus-visible:not(:disabled) {
+  color: #f0e5dc !important;
+  border-color: rgba(160, 63, 73, .58) !important;
+  outline: none;
+}
+
+.gg-audio-playlist-control select:disabled {
+  color: rgba(216, 204, 194, .5) !important;
+  opacity: .72;
+}
+
+.gg-audio-playlist-control option {
+  color: #ddd4ca !important;
+  background: #0d0b10 !important;
+}
+
+.gg-audio-file-control {
+  grid-template-columns: minmax(0, 1fr) 28px;
+  min-height: 28px;
+  padding: 0 0 0 8px;
+  overflow: hidden;
+  border: 1px solid rgba(119, 91, 90, .22);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, .25);
+}
+
+.gg-audio-path-input {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.gg-audio-filename {
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(216, 204, 194, .63);
+  font-family: var(--font-monospace, monospace);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gg-audio-icon-button {
+  display: grid !important;
+  place-items: center;
+  width: 28px !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: rgba(223, 208, 197, .72) !important;
+  border: 1px solid rgba(126, 88, 88, .32) !important;
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, .035) !important;
+  box-shadow: none !important;
+  font-size: 10px !important;
+}
+
+.gg-audio-icon-button:hover:not(:disabled),
+.gg-audio-icon-button:focus-visible:not(:disabled),
+.gg-audio-icon-button.is-playing {
+  color: #f1dfd3 !important;
+  border-color: rgba(169, 53, 65, .65) !important;
+  background: rgba(107, 18, 29, .42) !important;
+}
+
+.gg-audio-icon-button:disabled {
+  opacity: .28;
+}
+
+.gg-audio-file-control .gg-audio-browse {
+  border-width: 0 0 0 1px !important;
+  border-radius: 0 !important;
+}
+
+.gg-audio-panel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-top: 1px solid rgba(142, 92, 92, .22);
+  background: rgba(0, 0, 0, .2);
+}
+
+.gg-audio-panel-footer > span {
+  color: rgba(214, 201, 191, .48);
+  font-size: 9px;
+}
+
+.gg-audio-save {
+  flex: 0 0 auto;
+  width: auto !important;
+  min-width: 112px;
+  min-height: 32px;
+  margin: 0 !important;
+  padding: 5px 14px !important;
+  color: #f0e0d5 !important;
+  border: 1px solid rgba(160, 48, 60, .72) !important;
+  border-radius: 6px !important;
+  background: linear-gradient(#751522, #3c0d15) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 4px 12px rgba(0, 0, 0, .3) !important;
+  font-size: 10px;
+  letter-spacing: .05em;
+}
+
+@media (max-width: 620px) {
+  .gg-audio-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Motion and responsive adjustments                                          */
+/* -------------------------------------------------------------------------- */
+
+@keyframes gg-reject {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px) rotate(-0.3deg); }
+  50% { transform: translateX(5px) rotate(0.3deg); }
+  75% { transform: translateX(-3px); }
+}
+
+@keyframes gg-sigil-breathe {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.78; }
+  50% { transform: translate(0.7px, -0.5px) scale(1.012); opacity: 1; }
+}
+
+@keyframes gg-line-flicker {
+  0%, 94%, 100% { opacity: 0.8; }
+  95% { opacity: 0.15; }
+  97% { opacity: 1; }
+}
+
+@keyframes gg-cast-pulse {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.65) drop-shadow(0 0 8px rgba(120, 0, 0, 0.8)); }
+}
+
+@keyframes gg-no-wp-pulse {
+  0%, 100% { opacity: 0.78; filter: brightness(0.78); }
+  50% { opacity: 1; filter: brightness(1.02); }
+}
+
+@media (max-width: 1120px) {
+  .gg-ritual-info {
+    padding-right: 14px;
+  }
+
+  .gg-ritual-circle {
+    padding-left: 14px;
+  }
+
+  .gg-spell-meta,
+  .gg-ritual-options {
+    grid-template-columns: 1fr;
+  }
+
+  .gg-safe-cast {
+    grid-column: 1;
+    justify-self: stretch;
+  }
+
+  .gg-ritual-title h2 {
+    font-size: 18px;
+  }
+
+}
+
+@media (max-height: 660px) {
+  .gg-ritual-info,
+  .gg-ritual-circle {
+    padding-top: 10px;
+    padding-bottom: 9px;
+  }
+
+  .gg-seal-field {
+    width: min(72%, 300px);
+  }
+
+  .gg-ritual-metric {
+    min-height: 46px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gg-node-sigil,
+  .gg-star-lines path,
+  .gg-cast-button.is-casting,
+  .gg-cast-fx-overlay,
+  .gg-cast-fx-enhancement,
+  .gg-no-wp-effect,
+  .gg-cover-threadfield,
+  .gg-cover-thread,
+  .gg-cover-shadow,
+  .gg-halo-orbit,
+  .gg-halo-ray,
+  .gg-halo-ember,
+  .gg-cathedral-chain,
+  .gg-cathedral-mote,
+  .gg-ossuary-wheel,
+  .gg-ossuary-spoke,
+  .gg-ossuary-dust,
+  .gg-eye-tendril,
+  .gg-abyssal-eye,
+  .gg-eye-iris,
+  .gg-eye-pupil,
+  .gg-wax-drip,
+  .gg-wax-flame,
+  .gg-wax-seal-ring,
+  .gg-wax-smoke,
+  .gg-link-spark,
+  .gg-seal-field.is-threshold-ready .gg-seal-accuracy::before {
+    animation: none !important;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Mishap RollTable manager                                                   */
+/* -------------------------------------------------------------------------- */
+
+#goetia-grimoire-mishap-settings .window-content,
+#goetia-grimoire-mishap-settings .standard-form {
+  padding: 0;
+  overflow: hidden;
+  color: #ddd4ca !important;
+  background: linear-gradient(145deg, #17131a, #09080c 62%, #121016) !important;
+}
+
+.gg-mishap-settings-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  color: #ddd4ca !important;
+  color-scheme: dark;
+  background:
+    radial-gradient(circle at 16% 0%, rgba(106, 24, 35, .14), transparent 34%),
+    linear-gradient(145deg, #17131a, #09080c 62%, #121016);
+}
+
+.gg-mishap-settings-header {
+  padding: 16px 18px 13px;
+  border-bottom: 1px solid rgba(142, 92, 92, .22);
+}
+
+.gg-mishap-settings-header h2 {
+  margin: 0;
+  color: #f0e6dc;
+  font-size: 16px;
+}
+
+.gg-mishap-settings-header p {
+  margin: 4px 0 0;
+  color: rgba(221, 210, 200, .6);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.gg-mishap-settings-list {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.gg-mishap-setting-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) minmax(180px, 42%);
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(131, 88, 88, .24);
+  border-radius: 8px;
+  background: rgba(7, 6, 10, .54);
+}
+
+.gg-mishap-setting-level {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  color: #f0ded3;
+  border: 1px solid rgba(159, 55, 68, .55);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(115, 18, 31, .48), rgba(19, 9, 14, .78));
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.gg-mishap-setting-copy {
+  min-width: 0;
+}
+
+.gg-mishap-setting-copy strong,
+.gg-mishap-setting-copy small {
+  display: block;
+}
+
+.gg-mishap-setting-copy strong {
+  color: #e9dfd5;
+  font-size: 11px;
+}
+
+.gg-mishap-setting-copy small {
+  margin-top: 2px;
+  color: rgba(217, 205, 194, .52);
+  font-size: 9px;
+  line-height: 1.25;
+}
+
+.gg-mishap-setting-row select {
+  width: 100%;
+  min-width: 0;
+  height: 30px;
+  margin: 0 !important;
+  padding: 3px 28px 3px 8px !important;
+  color: #ddd4ca !important;
+  border: 1px solid rgba(119, 91, 90, .34) !important;
+  border-radius: 6px !important;
+  background: #0d0b10 !important;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, .34) !important;
+  font-size: 10px;
+}
+
+.gg-mishap-setting-row option {
+  color: #ddd4ca !important;
+  background: #0d0b10 !important;
+}
+
+.gg-mishap-settings-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 14px;
+  border-top: 1px solid rgba(142, 92, 92, .22);
+  background: rgba(255, 255, 255, .018);
+}
+
+.gg-mishap-settings-footer span {
+  color: rgba(221, 210, 200, .55);
+  font-size: 9px;
+}
+
+.gg-mishap-settings-footer button {
+  flex: 0 0 auto;
+  width: auto !important;
+  min-width: 104px;
+  margin: 0 !important;
+  color: #efe3da !important;
+  border: 1px solid rgba(163, 55, 67, .55) !important;
+  background: linear-gradient(180deg, rgba(117, 22, 35, .7), rgba(67, 12, 21, .86)) !important;
+}

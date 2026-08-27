@@ -1,0 +1,9 @@
+{
+  "name": "goetia-grimoire",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/smoke.mjs"
+  },
+  "version": "0.7.7"
+}

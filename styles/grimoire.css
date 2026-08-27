@@ -1,0 +1,944 @@
+:root {
+  --gg-font-family: "Signika", "IM Fell English", serif;
+  --gg-ink: #ddd6ca;
+  --gg-ink-muted: rgba(210, 198, 183, 0.62);
+  --gg-paper-dark: #08070a;
+  --gg-paper-mid: #100d12;
+  --gg-border: rgba(126, 91, 86, 0.28);
+  --gg-border-strong: rgba(167, 102, 100, 0.68);
+  --gg-blood: #71101e;
+  --gg-shadow: rgba(0, 0, 0, 0.78);
+  --gg-bookmark-rise: 112px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Shared reset                                                               */
+/* -------------------------------------------------------------------------- */
+
+.gg-spells-host,
+.gg-spells-host *,
+.gg-overlay,
+.gg-overlay * {
+  box-sizing: border-box;
+  font-family: var(--gg-font-family) !important;
+}
+
+.gg-overlay button,
+.gg-spells-host button {
+  font-family: var(--gg-font-family) !important;
+}
+
+.talent-tab.gg-has-grimoire {
+  gap: 0 !important;
+  column-gap: 0 !important;
+}
+
+.talent-tab.gg-has-grimoire > .talents {
+  margin-right: 0 !important;
+}
+
+.gg-section-open {
+  visibility: hidden;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Embedded closed cover                                                      */
+/* -------------------------------------------------------------------------- */
+
+.gg-spells-host {
+  position: relative !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-color: #17131b !important;
+  background: #09080c !important;
+}
+
+.gg-spells-host > h2,
+.gg-spells-host > .item-list {
+  display: none !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Shared sigil canvases                                                      */
+/* -------------------------------------------------------------------------- */
+
+.gg-unlock-guide .gg-guide-ink {
+  stroke-width: 1.55;
+  opacity: 0.88;
+}
+
+.gg-unlock-guide-svg,
+.gg-target-sigil-svg,
+.gg-cast-fx-svg,
+.gg-cast-fx-enhancement-svg {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+.gg-unlock-canvas,
+.gg-ritual-canvas,
+.gg-extra-canvas {
+  position: absolute;
+  z-index: 4;
+  display: block;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: crosshair;
+  contain: paint;
+}
+
+.gg-unlock-canvas {
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.gg-unlock-canvas.is-disabled,
+.gg-ritual-canvas.is-disabled,
+.gg-extra-canvas.is-disabled {
+  cursor: not-allowed;
+  pointer-events: none !important;
+}
+
+.gg-drawing-status {
+  color: rgba(202, 165, 158, 0.82);
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.045em;
+  text-align: center;
+}
+
+.gg-closed.is-rejected,
+.gg-ritual-circle.is-rejected {
+  animation: gg-reject 0.34s linear;
+}
+
+.gg-closed.is-unlocked {
+  filter: brightness(1.35) contrast(1.1);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Reimagined entrance                                                        */
+/* -------------------------------------------------------------------------- */
+
+.gg-closed {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  overflow: hidden;
+  color: #ded6ca;
+  background: #000;
+}
+
+.gg-cover-vault {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.gg-cover-threadfield {
+  position: absolute;
+  inset: -1.5%;
+  width: 103%;
+  height: 103%;
+  transform-origin: center;
+}
+
+.gg-cover-threadfield.is-animated {
+  animation: gg-cover-field-drift 16s ease-in-out infinite alternate;
+}
+
+.gg-closed.is-drawing .gg-cover-threadfield {
+  animation-play-state: paused;
+}
+
+.gg-cover-shadows {
+  position: absolute;
+  inset: -8%;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.gg-cover-shadow {
+  position: absolute;
+  display: block;
+  width: 48%;
+  height: 34%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.46), rgba(0, 0, 0, 0.18) 52%, rgba(0, 0, 0, 0) 74%);
+  filter: blur(18px);
+  opacity: 0.68;
+  transform-origin: center;
+  animation: gg-cover-shadow-wander 21s ease-in-out infinite alternate;
+}
+
+.gg-cover-shadow.shadow-a {
+  left: 8%;
+  top: 10%;
+  animation-duration: 17s;
+}
+
+.gg-cover-shadow.shadow-b {
+  right: 6%;
+  top: 28%;
+  width: 40%;
+  height: 30%;
+  animation-duration: 23s;
+  animation-delay: -7s;
+}
+
+.gg-cover-shadow.shadow-c {
+  left: 24%;
+  bottom: 6%;
+  width: 56%;
+  height: 36%;
+  animation-duration: 19s;
+  animation-delay: -11s;
+}
+
+.gg-cover-thread {
+  fill: none;
+  stroke: rgb(126, 132, 141);
+  stroke-width: var(--gg-thread-width, 0.5px);
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.9;
+  animation: gg-cover-thread-pulse 5.4s ease-in-out infinite alternate;
+}
+
+@keyframes gg-cover-field-drift {
+  from { transform: translate3d(-0.8%, -0.55%, 0) scale(1.008); opacity: 0.8; }
+  to { transform: translate3d(0.95%, 0.7%, 0) scale(1.026); opacity: 1; }
+}
+
+@keyframes gg-cover-shadow-wander {
+  0% { transform: translate3d(-1%, -0.5%, 0) scale(0.96); opacity: 0.42; }
+  50% { transform: translate3d(2.2%, 1.4%, 0) scale(1.03); opacity: 0.74; }
+  100% { transform: translate3d(-1.8%, 2.1%, 0) scale(1.08); opacity: 0.52; }
+}
+
+@keyframes gg-cover-thread-pulse {
+  0%, 100% { opacity: 0.62; filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0)); }
+  50% { opacity: 1; filter: drop-shadow(0 0 3px rgba(210, 214, 224, 0.12)); }
+}
+
+.gg-cover-lock {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: 50%;
+  width: min(84%, 430px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  overflow: visible;
+  background: transparent;
+  box-shadow: none;
+}
+
+.gg-unlock-guide {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  color: rgba(222, 216, 208, 0.46);
+  filter: drop-shadow(0 0 3px rgba(220, 220, 220, 0.1));
+  opacity: 1;
+  pointer-events: none;
+}
+
+.gg-cover-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  border: 0;
+}
+
+.gg-cover-tools {
+  position: absolute;
+  z-index: 12;
+  left: 50%;
+  bottom: 6.5%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transform: translateX(-50%);
+}
+
+.gg-cover-theme-ui {
+  position: absolute;
+  z-index: 12;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gg-cover-theme-name {
+  display: inline-flex;
+  align-items: center;
+  max-width: min(42vw, 180px);
+  padding: 5px 9px;
+  color: rgba(230, 219, 203, 0.92);
+  border: 1px solid rgba(123, 91, 88, 0.42);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(17, 10, 14, 0.84), rgba(5, 4, 7, 0.94));
+  box-shadow: inset 0 0 10px rgba(77, 8, 18, 0.22), 0 2px 10px rgba(0, 0, 0, 0.42);
+  font-size: 10px;
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gg-cover-theme-cycle {
+  flex: 0 0 auto;
+}
+
+.gg-cover-visual {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.28s ease, transform 0.28s ease, filter 0.28s ease;
+}
+
+.gg-closed[data-gg-cover-theme="threads"] .gg-cover-visual--threads,
+.gg-closed[data-gg-cover-theme="halo"] .gg-cover-visual--halo,
+.gg-closed[data-gg-cover-theme="cathedral"] .gg-cover-visual--cathedral,
+.gg-closed[data-gg-cover-theme="ossuary"] .gg-cover-visual--ossuary,
+.gg-closed[data-gg-cover-theme="eye"] .gg-cover-visual--eye,
+.gg-closed[data-gg-cover-theme="wax"] .gg-cover-visual--wax {
+  opacity: 1;
+}
+
+/* Keep the visual crossfade intact while preventing hidden entrance themes
+   from spending CPU/GPU time on infinite animations. */
+.gg-cover-visual,
+.gg-cover-visual * {
+  animation-play-state: paused !important;
+}
+
+.gg-closed[data-gg-cover-theme="threads"] .gg-cover-visual--threads,
+.gg-closed[data-gg-cover-theme="threads"] .gg-cover-visual--threads *,
+.gg-closed[data-gg-cover-theme="halo"] .gg-cover-visual--halo,
+.gg-closed[data-gg-cover-theme="halo"] .gg-cover-visual--halo *,
+.gg-closed[data-gg-cover-theme="cathedral"] .gg-cover-visual--cathedral,
+.gg-closed[data-gg-cover-theme="cathedral"] .gg-cover-visual--cathedral *,
+.gg-closed[data-gg-cover-theme="ossuary"] .gg-cover-visual--ossuary,
+.gg-closed[data-gg-cover-theme="ossuary"] .gg-cover-visual--ossuary *,
+.gg-closed[data-gg-cover-theme="eye"] .gg-cover-visual--eye,
+.gg-closed[data-gg-cover-theme="eye"] .gg-cover-visual--eye *,
+.gg-closed[data-gg-cover-theme="wax"] .gg-cover-visual--wax,
+.gg-closed[data-gg-cover-theme="wax"] .gg-cover-visual--wax * {
+  animation-play-state: running !important;
+}
+
+.gg-section-open .gg-closed .gg-cover-visual,
+.gg-section-open .gg-closed .gg-cover-visual *,
+.gg-spells-host.gg-host-inactive .gg-cover-visual,
+.gg-spells-host.gg-host-inactive .gg-cover-visual * {
+  animation-play-state: paused !important;
+}
+
+.gg-closed.is-switching-theme .gg-cover-visual {
+  filter: brightness(1.18) contrast(1.06);
+}
+
+.gg-cover-visual--threads {
+  background:
+    radial-gradient(circle at 50% 44%, rgba(122, 12, 30, 0.14), rgba(0, 0, 0, 0) 34%),
+    radial-gradient(circle at 50% 50%, rgba(20, 20, 26, 0.24), rgba(0, 0, 0, 0) 58%);
+}
+
+.gg-cover-visual--halo {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(119, 18, 33, 0.32), rgba(55, 8, 18, 0.14) 22%, rgba(0, 0, 0, 0) 54%),
+    linear-gradient(180deg, rgba(10, 8, 12, 0.88), rgba(3, 2, 5, 0.98));
+}
+
+.gg-cover-halo-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(70vw, 560px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 0 32px rgba(131, 17, 38, 0.24));
+}
+
+.gg-halo-orbits,
+.gg-cover-halo-rays,
+.gg-cover-halo-embers,
+.gg-cathedral-backdrop,
+.gg-cathedral-chains,
+.gg-cathedral-motes {
+  position: absolute;
+  inset: 0;
+}
+
+.gg-halo-orbit {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border: 1px solid rgba(207, 179, 154, 0.24);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: inset 0 0 18px rgba(150, 15, 36, 0.12), 0 0 14px rgba(115, 10, 24, 0.12);
+}
+
+.gg-halo-orbit.ring-a { width: 88%; height: 88%; animation: gg-halo-orbit-turn 42s linear infinite; }
+.gg-halo-orbit.ring-b { width: 68%; height: 68%; border-style: dashed; animation: gg-halo-orbit-turn 24s linear infinite reverse; }
+.gg-halo-orbit.ring-c { width: 46%; height: 46%; border-color: rgba(230, 217, 201, 0.18); animation: gg-halo-orbit-pulse 6s ease-in-out infinite; }
+
+.gg-cover-halo-glyph {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 24%;
+  height: 24%;
+  border: 1px solid rgba(224, 201, 181, 0.22);
+  transform: translate(-50%, -50%) rotate(45deg);
+  box-shadow: inset 0 0 18px rgba(170, 12, 32, 0.16), 0 0 10px rgba(230, 226, 219, 0.06);
+}
+
+.gg-halo-ray {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: var(--gg-ray-height, 26%);
+  margin-top: calc(var(--gg-ray-height, 26%) * -1);
+  transform-origin: 50% 100%;
+  transform: translate(-50%, 0) rotate(var(--gg-ray-rotate, 0deg));
+  background: linear-gradient(180deg, rgba(255, 230, 199, 0), rgba(255, 226, 196, var(--gg-ray-opacity, 0.25)) 38%, rgba(128, 12, 31, 0.02) 100%);
+  box-shadow: 0 0 10px rgba(124, 9, 31, 0.14);
+  animation: gg-cover-ray-flicker 7.5s ease-in-out infinite;
+  animation-delay: var(--gg-ray-delay, 0s);
+}
+
+.gg-halo-ember,
+.gg-cathedral-mote {
+  position: absolute;
+  width: var(--gg-ember-size, var(--gg-mote-size, 4px));
+  height: var(--gg-ember-size, var(--gg-mote-size, 4px));
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 234, 214, 0.84), rgba(170, 25, 47, 0.42) 45%, rgba(0, 0, 0, 0) 72%);
+  opacity: 0.62;
+}
+
+.gg-halo-ember {
+  animation: gg-cover-ember-drift var(--gg-ember-duration, 9s) ease-in-out infinite;
+  animation-delay: var(--gg-ember-delay, 0s);
+}
+
+.gg-cover-visual--cathedral {
+  background:
+    linear-gradient(180deg, rgba(15, 10, 14, 0.88), rgba(5, 5, 8, 0.98) 56%),
+    radial-gradient(circle at 50% 35%, rgba(116, 10, 28, 0.16), rgba(0, 0, 0, 0) 46%);
+}
+
+.gg-cathedral-backdrop {
+  background: radial-gradient(circle at 50% 18%, rgba(144, 17, 36, 0.28), rgba(58, 9, 16, 0.12) 16%, rgba(0, 0, 0, 0) 30%);
+}
+
+.gg-cathedral-window {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  width: min(30vw, 180px);
+  height: min(34vw, 220px);
+  transform: translateX(-50%);
+  clip-path: polygon(50% 0%, 88% 24%, 88% 78%, 50% 100%, 12% 78%, 12% 24%);
+  background: radial-gradient(circle at 50% 20%, rgba(255, 226, 203, 0.18), rgba(153, 17, 39, 0.22) 32%, rgba(16, 8, 12, 0.12) 76%, rgba(0, 0, 0, 0) 100%);
+  box-shadow: 0 0 22px rgba(121, 14, 31, 0.22);
+}
+
+.gg-cathedral-arch {
+  position: absolute;
+  bottom: -3%;
+  width: 26%;
+  height: 72%;
+  border: 1px solid rgba(108, 82, 74, 0.2);
+  border-bottom: 0;
+  border-radius: 50% 50% 0 0 / 18% 18% 0 0;
+  background: linear-gradient(180deg, rgba(53, 19, 23, 0.12), rgba(7, 5, 7, 0.02) 22%, rgba(0, 0, 0, 0.64) 100%);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.gg-cathedral-arch.arch-left { left: 5%; }
+.gg-cathedral-arch.arch-mid { left: 50%; width: 32%; height: 78%; transform: translateX(-50%); }
+.gg-cathedral-arch.arch-right { right: 5%; }
+
+.gg-cathedral-thorns {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 28%;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.52), rgba(0, 0, 0, 0));
+  mask: radial-gradient(circle at 6% 0%, transparent 0 14px, #000 15px) left top / 12.5% 100% repeat-x;
+  opacity: 0.52;
+}
+
+.gg-cathedral-chain {
+  position: absolute;
+  top: -6%;
+  width: 2px;
+  height: var(--gg-chain-length, 48%);
+  background: repeating-linear-gradient(180deg, rgba(202, 186, 168, 0.14) 0 8px, rgba(20, 18, 22, 0.02) 8px 14px);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.22);
+  animation: gg-cathedral-chain-sway 12s ease-in-out infinite;
+  animation-delay: var(--gg-chain-delay, 0s);
+}
+
+.gg-cathedral-mote {
+  animation: gg-cathedral-mote-drift var(--gg-mote-duration, 10s) ease-in-out infinite;
+  animation-delay: var(--gg-mote-delay, 0s);
+  opacity: 0.42;
+}
+
+
+.gg-cover-visual--ossuary {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(198, 176, 139, 0.12), rgba(70, 41, 28, 0.08) 28%, rgba(0, 0, 0, 0) 58%),
+    linear-gradient(180deg, #09080a, #020203);
+}
+
+.gg-ossuary-wheel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(72vw, 560px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  animation: gg-ossuary-turn 70s linear infinite;
+}
+
+.gg-ossuary-orbit,
+.gg-ossuary-hub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.gg-ossuary-orbit.outer {
+  width: 86%;
+  height: 86%;
+  border: 3px double rgba(197, 181, 153, 0.18);
+  box-shadow: inset 0 0 26px rgba(0, 0, 0, 0.78), 0 0 18px rgba(94, 42, 35, 0.14);
+}
+
+.gg-ossuary-orbit.inner {
+  width: 52%;
+  height: 52%;
+  border: 1px dashed rgba(215, 198, 169, 0.22);
+}
+
+.gg-ossuary-hub {
+  width: 18%;
+  height: 18%;
+  border: 2px solid rgba(206, 188, 157, 0.22);
+  background: radial-gradient(circle, rgba(50, 22, 24, 0.72), #060506 70%);
+  box-shadow: 0 0 24px rgba(122, 18, 31, 0.22), inset 0 0 18px #000;
+}
+
+.gg-ossuary-spokes,
+.gg-ossuary-dustfield {
+  position: absolute;
+  inset: 0;
+}
+
+.gg-ossuary-spoke {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: var(--gg-bone-length, 38%);
+  margin-left: -5px;
+  margin-top: calc(var(--gg-bone-length, 38%) * -1);
+  transform-origin: 50% 100%;
+  transform: rotate(var(--gg-bone-angle, 0deg));
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 7%, rgba(226, 214, 191, 0.28) 0 4px, transparent 5px),
+    radial-gradient(circle at 50% 93%, rgba(226, 214, 191, 0.24) 0 4px, transparent 5px),
+    linear-gradient(90deg, rgba(66, 52, 42, 0.26), rgba(223, 210, 184, 0.22) 45%, rgba(66, 52, 42, 0.26));
+  box-shadow: 0 0 7px rgba(0, 0, 0, 0.55);
+  animation: gg-ossuary-breathe 7s ease-in-out infinite;
+  animation-delay: var(--gg-bone-delay, 0s);
+}
+
+.gg-ossuary-jaw {
+  position: absolute;
+  top: 50%;
+  width: 24%;
+  height: 34%;
+  border: 2px solid rgba(207, 192, 164, 0.13);
+  border-top: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 14px, rgba(205, 191, 166, 0.1) 14px 22px, transparent 22px 30px);
+  opacity: 0.75;
+}
+
+.gg-ossuary-jaw.jaw-left { left: -4%; transform: translateY(-50%) rotate(12deg); border-radius: 0 0 60% 20%; }
+.gg-ossuary-jaw.jaw-right { right: -4%; transform: translateY(-50%) rotate(-12deg); border-radius: 0 0 20% 60%; }
+
+.gg-ossuary-dust {
+  position: absolute;
+  width: var(--gg-dust-size, 3px);
+  height: var(--gg-dust-size, 3px);
+  border-radius: 50%;
+  background: rgba(220, 202, 173, 0.38);
+  box-shadow: 0 0 6px rgba(220, 202, 173, 0.12);
+  animation: gg-ossuary-dust-drift var(--gg-dust-duration, 11s) ease-in-out infinite;
+  animation-delay: var(--gg-dust-delay, 0s);
+}
+
+.gg-cover-visual--eye {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(95, 7, 28, 0.27), rgba(20, 3, 12, 0.22) 35%, rgba(0, 0, 0, 0) 62%),
+    linear-gradient(180deg, #050407, #000);
+}
+
+.gg-eye-tendrils {
+  position: absolute;
+  inset: 0;
+}
+
+.gg-eye-tendril {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--gg-tendril-width, 65%);
+  height: 3px;
+  transform-origin: 0 50%;
+  transform: rotate(var(--gg-tendril-angle, 0deg));
+  background: linear-gradient(90deg, rgba(121, 16, 41, 0.46), rgba(42, 7, 18, 0.12) 48%, transparent 100%);
+  box-shadow: 0 0 10px rgba(92, 8, 29, 0.16);
+  border-radius: 999px;
+  animation: gg-eye-tendril-pulse 8s ease-in-out infinite;
+  animation-delay: var(--gg-tendril-delay, 0s);
+}
+
+.gg-abyssal-eye {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(72vw, 560px);
+  height: min(38vw, 290px);
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 0 25px rgba(97, 7, 28, 0.28));
+  animation: gg-eye-blink 11s ease-in-out infinite;
+}
+
+.gg-eye-sclera {
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(128, 77, 76, 0.22);
+  border-radius: 52% 48% 52% 48% / 62% 60% 40% 38%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(107, 11, 34, 0.7), rgba(40, 7, 19, 0.8) 32%, rgba(14, 7, 12, 0.96) 65%, #030204 100%);
+  box-shadow: inset 0 0 36px #000, 0 0 18px rgba(130, 15, 38, 0.2);
+  overflow: hidden;
+}
+
+.gg-eye-iris,
+.gg-eye-pupil,
+.gg-eye-glint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.gg-eye-iris {
+  width: 42%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(238, 211, 169, 0.22);
+  background: repeating-conic-gradient(from 2deg, rgba(180, 23, 53, 0.42) 0 5deg, rgba(35, 5, 15, 0.9) 5deg 12deg);
+  box-shadow: inset 0 0 25px #000, 0 0 16px rgba(167, 18, 48, 0.22);
+  animation: gg-eye-iris-turn 34s linear infinite;
+}
+
+.gg-eye-pupil {
+  width: 9%;
+  height: 62%;
+  background: #000;
+  box-shadow: 0 0 14px #000, 0 0 28px rgba(182, 25, 55, 0.25);
+  animation: gg-eye-pupil-throb 5.5s ease-in-out infinite;
+}
+
+.gg-eye-glint {
+  width: 8%;
+  height: 8%;
+  margin-left: -7%;
+  margin-top: -8%;
+  background: rgba(239, 224, 202, 0.42);
+  filter: blur(1px);
+}
+
+.gg-eye-lid {
+  position: absolute;
+  left: -3%;
+  width: 106%;
+  height: 52%;
+  background: linear-gradient(180deg, #050305, #12060b 70%, rgba(54, 8, 21, 0.9));
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.8);
+  z-index: 3;
+}
+
+.gg-eye-lid.lid-top { top: -54%; border-radius: 0 0 50% 50%; }
+.gg-eye-lid.lid-bottom { bottom: -54%; border-radius: 50% 50% 0 0; transform: rotate(180deg); }
+.gg-eye-vignette { position: absolute; inset: 0; box-shadow: inset 0 0 100px 38px #000; }
+
+.gg-cover-visual--wax {
+  background:
+    radial-gradient(circle at 50% 44%, rgba(156, 43, 28, 0.2), rgba(47, 13, 12, 0.08) 38%, rgba(0, 0, 0, 0) 62%),
+    linear-gradient(180deg, #0c0809, #020202);
+}
+
+.gg-wax-ceiling,
+.gg-wax-candles {
+  position: absolute;
+  inset: 0;
+}
+
+.gg-wax-drip {
+  position: absolute;
+  top: -4px;
+  width: 12px;
+  height: var(--gg-drip-length, 30px);
+  border-radius: 0 0 9px 9px;
+  background: linear-gradient(90deg, rgba(38, 12, 10, 0.9), rgba(120, 43, 31, 0.76) 48%, rgba(34, 9, 9, 0.9));
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.55), 0 0 8px rgba(108, 28, 19, 0.12);
+  animation: gg-wax-drip-pulse 9s ease-in-out infinite;
+  animation-delay: var(--gg-drip-delay, 0s);
+}
+
+.gg-wax-candle {
+  position: absolute;
+  bottom: -4px;
+  width: var(--gg-candle-width, 14px);
+  height: var(--gg-candle-height, 66px);
+  border-radius: 3px 3px 1px 1px;
+  background: linear-gradient(90deg, #260b0b, #74291e 48%, #220909);
+  box-shadow: inset 0 0 7px rgba(0, 0, 0, 0.7), 0 0 10px rgba(102, 25, 19, 0.12);
+}
+
+.gg-wax-wick {
+  position: absolute;
+  left: 50%;
+  top: -7px;
+  width: 1px;
+  height: 8px;
+  background: #160c0b;
+}
+
+.gg-wax-flame {
+  position: absolute;
+  left: 50%;
+  top: -24px;
+  width: 11px;
+  height: 21px;
+  margin-left: -5px;
+  border-radius: 50% 50% 50% 50% / 68% 68% 32% 32%;
+  background: radial-gradient(circle at 50% 72%, #fff0c8 0 12%, #d97339 28%, #8b1722 58%, transparent 72%);
+  filter: drop-shadow(0 0 7px rgba(211, 67, 39, 0.48));
+  transform-origin: 50% 100%;
+  animation: gg-wax-flame-flicker 2.8s ease-in-out infinite;
+  animation-delay: var(--gg-flame-delay, 0s);
+}
+
+.gg-wax-seal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(42vw, 320px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(100, 19, 20, 0.3), rgba(45, 7, 11, 0.18) 58%, transparent 60%);
+  filter: drop-shadow(0 0 20px rgba(113, 12, 22, 0.28));
+}
+
+.gg-wax-seal-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px ridge rgba(141, 42, 35, 0.46);
+}
+
+.gg-wax-seal-ring.outer { width: 92%; height: 92%; animation: gg-wax-seal-turn 46s linear infinite; }
+.gg-wax-seal-ring.inner { width: 66%; height: 66%; border-style: dashed; animation: gg-wax-seal-turn 31s linear infinite reverse; }
+.gg-wax-seal-mark { position: absolute; left: 50%; top: 50%; width: 28%; height: 28%; border: 2px solid rgba(164, 56, 43, 0.38); transform: translate(-50%, -50%) rotate(45deg); }
+.gg-wax-smoke { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 8%, rgba(130, 110, 101, 0.1), transparent 55%); animation: gg-wax-smoke-shift 12s ease-in-out infinite; }
+
+@keyframes gg-ossuary-turn { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes gg-ossuary-breathe { 0%, 100% { opacity: 0.35; filter: brightness(0.85); } 50% { opacity: 0.7; filter: brightness(1.15); } }
+@keyframes gg-ossuary-dust-drift { 0% { transform: translate3d(0, 8px, 0); opacity: 0; } 35% { opacity: 0.48; } 100% { transform: translate3d(5px, -22px, 0); opacity: 0; } }
+@keyframes gg-eye-tendril-pulse { 0%, 100% { opacity: 0.25; transform: rotate(var(--gg-tendril-angle, 0deg)) scaleX(0.92); } 50% { opacity: 0.58; transform: rotate(var(--gg-tendril-angle, 0deg)) scaleX(1.04); } }
+@keyframes gg-eye-blink { 0%, 42%, 47%, 100% { transform: translate(-50%, -50%) scaleY(1); } 44.5% { transform: translate(-50%, -50%) scaleY(0.06); } }
+@keyframes gg-eye-iris-turn { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes gg-eye-pupil-throb { 0%, 100% { transform: translate(-50%, -50%) scaleX(0.75); } 50% { transform: translate(-50%, -50%) scaleX(1.18); } }
+@keyframes gg-wax-drip-pulse { 0%, 100% { filter: brightness(0.8); } 50% { filter: brightness(1.12); } }
+@keyframes gg-wax-flame-flicker { 0%, 100% { transform: rotate(-3deg) scale(0.94, 1.03); opacity: 0.8; } 50% { transform: rotate(4deg) scale(1.08, 0.95); opacity: 1; } }
+@keyframes gg-wax-seal-turn { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes gg-wax-smoke-shift { 0%, 100% { transform: translateX(-1%) scale(1.02); opacity: 0.36; } 50% { transform: translateX(2%) scale(1.08); opacity: 0.7; } }
+
+@keyframes gg-halo-orbit-turn { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes gg-halo-orbit-pulse { 0%, 100% { opacity: 0.38; transform: translate(-50%, -50%) scale(0.985); } 50% { opacity: 0.78; transform: translate(-50%, -50%) scale(1.025); } }
+@keyframes gg-cover-ray-flicker { 0%, 100% { opacity: 0.28; } 50% { opacity: 0.76; } }
+@keyframes gg-cover-ember-drift { 0% { transform: translate3d(0, 0, 0) scale(0.82); opacity: 0.24; } 45% { opacity: 0.72; } 100% { transform: translate3d(0, -18px, 0) scale(1.16); opacity: 0; } }
+@keyframes gg-cathedral-chain-sway { 0%, 100% { transform: translateX(0) rotate(-1.4deg); } 50% { transform: translateX(3px) rotate(1.8deg); } }
+@keyframes gg-cathedral-mote-drift { 0% { transform: translate3d(0, 0, 0) scale(0.85); opacity: 0.08; } 50% { opacity: 0.48; } 100% { transform: translate3d(0, -14px, 0) scale(1.18); opacity: 0; } }
+
+
+/* -------------------------------------------------------------------------- */
+/* Reusable controls and tooltips                                             */
+/* -------------------------------------------------------------------------- */
+
+.gg-icon-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #f0e5d4 !important;
+  border: 1px solid rgba(193, 151, 125, 0.68) !important;
+  border-radius: 50% !important;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(100, 37, 43, 0.96), rgba(23, 9, 13, 0.98) 58%, #060406 100%) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 231, 198, 0.07),
+    inset 0 0 14px rgba(0, 0, 0, 0.72),
+    0 3px 10px rgba(0, 0, 0, 0.7),
+    0 0 13px rgba(118, 0, 16, 0.28) !important;
+  text-shadow: 0 1px 1px #000, 0 0 6px rgba(255, 221, 190, 0.25);
+  transition: transform 0.12s ease, border-color 0.12s ease, filter 0.12s ease, opacity 0.12s ease;
+}
+
+.gg-icon-button-small {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+}
+
+.gg-icon-button-small i {
+  font-size: 13px;
+}
+
+.gg-icon-button i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  margin: 0;
+  color: inherit !important;
+  font-family: var(--fa-style-family-classic, "Font Awesome 6 Free"), "Font Awesome 5 Free" !important;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.gg-icon-button-confirm {
+  color: #fff1dc !important;
+  border-color: rgba(211, 117, 111, 0.92) !important;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(128, 31, 42, 0.98), rgba(38, 8, 15, 0.99) 62%, #070405 100%) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 225, 197, 0.08),
+    inset 0 0 16px rgba(0, 0, 0, 0.68),
+    0 3px 11px rgba(0, 0, 0, 0.72),
+    0 0 18px rgba(145, 0, 20, 0.4) !important;
+}
+
+.gg-icon-button:not(:disabled):hover,
+.gg-icon-button:not(:disabled):focus-visible {
+  color: #fff8e9 !important;
+  border-color: rgba(235, 198, 163, 0.94) !important;
+  filter: brightness(1.22);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.gg-icon-button:disabled {
+  opacity: 0.28;
+  filter: grayscale(0.75);
+  cursor: not-allowed;
+}
+
+.gg-icon-button[data-gg-tooltip]::after {
+  content: attr(data-gg-tooltip);
+  position: absolute;
+  z-index: 100;
+  left: 50%;
+  bottom: calc(100% + 9px);
+  width: max-content;
+  max-width: 190px;
+  padding: 5px 8px;
+  color: #eee4d6;
+  border: 1px solid rgba(128, 83, 76, 0.72);
+  border-radius: 3px;
+  background: rgba(12, 7, 10, 0.98);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.82), inset 0 0 10px rgba(65, 0, 8, 0.24);
+  font-family: "Signika", sans-serif !important;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-align: center;
+  text-transform: none;
+  text-shadow: none;
+  white-space: normal;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, 3px);
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0.12s ease;
+}
+
+.gg-icon-button[data-gg-tooltip]:hover::after,
+.gg-icon-button[data-gg-tooltip]:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+
