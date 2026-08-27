@@ -1,0 +1,54 @@
+{
+  "id": "goetia-grimoire",
+  "title": "Goetia Grimoire",
+  "description": "A diegetic grimoire, sigil-based spell manager, and magic training system for Forbidden Lands miracle workers.",
+  "version": "0.7.7",
+  "authors": [
+    {
+      "name": "Airborne Isles"
+    }
+  ],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13.351",
+    "maximum": "13"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "forbidden-lands",
+        "type": "system",
+        "compatibility": {
+          "minimum": "13.0.5",
+          "verified": "13.0.5"
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/grimoire.css",
+    "styles/book.css",
+    "styles/contract.css",
+    "styles/ritual.css",
+    "styles/effects.css",
+    "styles/auxiliary.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "ru",
+      "name": "Русский",
+      "path": "lang/ru.json"
+    }
+  ],
+  "url": "",
+  "manifest": "",
+  "download": ""
+}

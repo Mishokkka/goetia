@@ -1,0 +1,27 @@
+<div class="gg-mishap-settings-panel" autocomplete="off">
+  <header class="gg-mishap-settings-header">
+    <h2>{{localize "GG.Settings.MishapPanelTitle"}}</h2>
+    <p>{{localize "GG.Settings.MishapPanelHint"}}</p>
+  </header>
+  <div class="gg-mishap-settings-list">
+    {{#each levels as |entry|}}
+    <label class="gg-mishap-setting-row">
+      <span class="gg-mishap-setting-level">{{entry.label}}</span>
+      <span class="gg-mishap-setting-copy">
+        <strong>{{localize "GG.Settings.MishapUnits"}} {{entry.label}}</strong>
+        <small>{{entry.hint}}</small>
+      </span>
+      <select name="mishapTable{{entry.level}}">
+        <option value="">{{localize "GG.Settings.MishapTableNone"}}</option>
+        {{#each entry.tables as |table|}}
+        <option value="{{table.id}}" {{#if table.selected}}selected{{/if}}>{{table.name}}</option>
+        {{/each}}
+      </select>
+    </label>
+    {{/each}}
+  </div>
+  <footer class="gg-mishap-settings-footer">
+    <span>{{localize "GG.Settings.MishapSixPlusHint"}}</span>
+    <button type="submit"><i class="fas fa-check"></i> {{localize "GG.Save"}}</button>
+  </footer>
+</div>

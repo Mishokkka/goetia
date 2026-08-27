@@ -1,0 +1,57 @@
+<form class="gg-audio-panel" autocomplete="off">
+  <header class="gg-audio-panel-header">
+    <div>
+      <h2>{{localize "GG.Settings.AudioPanelTitle"}}</h2>
+      <p>{{localize "GG.Settings.AudioPanelHint"}}</p>
+    </div>
+    {{#unless canEditPaths}}
+    <span class="gg-audio-permission"><i class="fas fa-lock"></i> {{localize "GG.Settings.SoundSourceGmOnlyShort"}}</span>
+    {{/unless}}
+  </header>
+
+  <div class="gg-audio-grid">
+    {{#each entries as |entry|}}
+    <section class="gg-audio-card" data-prefix="{{entry.prefix}}">
+      <header class="gg-audio-card-header">
+        <span class="gg-audio-card-icon"><i class="fas {{entry.icon}}"></i></span>
+        <div class="gg-audio-card-title">
+          <strong>{{entry.title}}</strong>
+          <span title="{{entry.description}}">{{entry.description}}</span>
+        </div>
+        <label class="gg-audio-switch" title="{{entry.title}}">
+          <input type="checkbox" name="{{entry.prefix}}SoundEnabled" {{#if entry.enabled}}checked{{/if}}>
+          <span></span>
+        </label>
+      </header>
+
+      <div class="gg-audio-volume-control">
+        <i class="fas fa-volume-low" aria-hidden="true"></i>
+        <input type="range" name="{{entry.prefix}}SoundVolume" min="0" max="1" step="0.05" value="{{entry.volume}}" data-gg-volume="{{entry.prefix}}" aria-label="{{localize "GG.Settings.SoundVolumeShort"}}">
+        <output data-gg-volume-output="{{entry.prefix}}">{{entry.volumePercent}}%</output>
+        <button type="button" class="gg-audio-icon-button gg-audio-preview" data-prefix="{{entry.prefix}}" title="{{localize "GG.Settings.PreviewSound"}}"><i class="fas fa-play"></i></button>
+      </div>
+
+      <div class="gg-audio-playlist-control">
+        <i class="fas fa-list" aria-hidden="true"></i>
+        <select name="{{entry.prefix}}SoundPlaylist" data-gg-playlist="{{entry.prefix}}" {{#unless ../canEditPaths}}disabled{{/unless}} aria-label="{{localize "GG.Settings.SoundPlaylistShort"}}" title="{{localize "GG.Settings.SoundPlaylistHint"}}">
+          <option value="">{{localize "GG.Settings.SoundPlaylistNone"}}</option>
+          {{#each entry.playlists as |playlist|}}
+          <option value="{{playlist.id}}" {{#if playlist.selected}}selected{{/if}}>{{playlist.name}} ({{playlist.soundCount}})</option>
+          {{/each}}
+        </select>
+      </div>
+
+      <div class="gg-audio-file-control" title="{{localize "GG.Settings.SoundFileFallbackHint"}}">
+        <input type="text" class="gg-audio-path-input" name="{{entry.prefix}}SoundPath" value="{{entry.path}}" data-gg-audio-path="{{entry.prefix}}" {{#unless ../canEditPaths}}disabled{{/unless}} aria-label="{{localize "GG.Settings.SoundPathShort"}}">
+        <span class="gg-audio-filename" data-gg-audio-filename="{{entry.prefix}}" title="{{entry.path}}">{{entry.filename}}</span>
+        <button type="button" class="gg-audio-icon-button gg-audio-browse" data-prefix="{{entry.prefix}}" title="{{localize "GG.Settings.ChooseSoundFile"}}" {{#unless ../canEditPaths}}disabled{{/unless}}><i class="fas fa-folder-open"></i></button>
+      </div>
+    </section>
+    {{/each}}
+  </div>
+
+  <footer class="gg-audio-panel-footer">
+    <span>{{localize "GG.Settings.SoundLocalHint"}}</span>
+    <button type="submit" class="gg-audio-save"><i class="fas fa-check"></i> {{localize "GG.Save"}}</button>
+  </footer>
+</form>

@@ -1,0 +1,703 @@
+/* -------------------------------------------------------------------------- */
+/* Ritual pages                                                               */
+/* -------------------------------------------------------------------------- */
+
+.gg-ritual-layout {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 50% 50%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  color: var(--gg-ink);
+}
+
+.gg-page-panel {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.gg-ritual-info {
+  display: grid;
+  grid-template-rows: auto auto minmax(90px, 1fr) auto;
+  gap: 9px;
+  padding: 14px 18px 16px 16px;
+  overflow: hidden;
+}
+
+.gg-ritual-heading {
+  display: block;
+  min-width: 0;
+}
+
+.gg-back {
+  position: absolute;
+  z-index: 14;
+  bottom: 12px;
+  left: 12px;
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #c8bfb3 !important;
+  border-color: rgba(91, 54, 59, 0.54) !important;
+  background: rgba(8, 6, 9, 0.78) !important;
+}
+
+.gg-back:hover,
+.gg-back:focus-visible {
+  color: #fff3e2 !important;
+  border-color: rgba(139, 79, 82, 0.88) !important;
+  background: rgba(63, 17, 24, 0.82) !important;
+  outline: none;
+}
+
+.gg-ritual-title {
+  min-width: 0;
+  padding-inline: 34px;
+  text-align: center;
+}
+
+.gg-ritual-title > span {
+  display: block;
+  margin-bottom: 2px;
+  color: rgba(188, 153, 137, 0.64);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.gg-ritual-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.gg-ritual-title h2 {
+  flex: 1 1 auto;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  color: #f0e8dc !important;
+  font-size: clamp(18px, 2.1vw, 26px);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: 0.08em;
+  text-overflow: clip;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 1px 0 #000, 0 0 10px rgba(111, 0, 14, 0.38);
+  transform: scaleX(var(--gg-fit-scale, 1));
+  transform-origin: 50% 50%;
+}
+
+.gg-title-chat {
+  flex: 0 0 auto;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+}
+
+.gg-title-chat i {
+  font-size: 11px;
+}
+
+.gg-spell-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 8px;
+  min-width: 0;
+}
+
+.gg-spell-meta .gg-meta-wide {
+  grid-column: 1 / -1;
+}
+
+.gg-spell-meta span {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 7px;
+  min-width: 0;
+  padding: 2px 0;
+  color: #d8d0c4;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.gg-spell-meta b {
+  color: rgba(191, 174, 159, 0.6) !important;
+  font-size: 8px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gg-spell-meta strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #e6ded2 !important;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.15;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gg-spell-meta .gg-meta-wide strong,
+.gg-spell-meta .gg-meta-left strong {
+  text-align: left;
+}
+
+.gg-spell-description {
+  min-width: 0;
+  min-height: 0;
+  padding: 10px 12px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  color: #d8d1c6 !important;
+  border-top: 1px solid rgba(142, 105, 96, 0.18);
+  border-bottom: 1px solid rgba(142, 105, 96, 0.18);
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.14) 12%, rgba(0, 0, 0, 0.14) 88%, transparent);
+  font-family: var(--gg-font-family) !important;
+  font-size: 12px;
+  line-height: 1.38;
+  scrollbar-color: #4c2c31 transparent;
+}
+
+.gg-spell-description,
+.gg-spell-description :is(p, span, div, li, ul, ol, table, tbody, thead, tr, td, th, em, strong, b, i, blockquote, section, article) {
+  color: #d8d1c6 !important;
+  background-color: transparent !important;
+  border-color: rgba(169, 132, 117, 0.22) !important;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.gg-spell-description a {
+  color: #d6a6a1 !important;
+}
+
+.gg-spell-description img,
+.gg-spell-description video,
+.gg-spell-description iframe,
+.gg-spell-description table {
+  max-width: 100% !important;
+}
+
+.gg-spell-description > :first-child { margin-top: 0; }
+.gg-spell-description > :last-child { margin-bottom: 0; }
+
+.gg-cast-ledger {
+  display: grid;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid rgba(117, 79, 77, 0.3);
+  border-radius: 4px;
+  background: rgba(3, 2, 4, 0.35);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.42);
+}
+
+.gg-ritual-values {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0;
+}
+
+.gg-ritual-metric {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 38px;
+  padding: 0 10px;
+  color: #eee5d8;
+  border: 1px solid rgba(133, 91, 87, 0.26);
+  border-radius: 3px;
+  background: radial-gradient(circle at 50% 45%, rgba(75, 21, 28, 0.18), rgba(0, 0, 0, 0.2));
+}
+
+.gg-ritual-values b {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  color: rgba(195, 177, 162, 0.76) !important;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-align: left;
+  text-transform: uppercase;
+  transform: translateY(-50%);
+}
+
+.gg-ritual-metric-line {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 100%;
+  min-height: 22px;
+  padding-inline: 24px 8px;
+  white-space: nowrap;
+}
+
+.gg-ritual-values strong {
+  color: #f4eadc !important;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+  text-align: center;
+}
+
+.gg-ritual-values .gg-power-total-wrap {
+  min-width: 80px;
+}
+
+.gg-power-total {
+  justify-content: center;
+}
+
+.gg-inline-power-bonus {
+  display: inline-block;
+  min-width: 22px;
+  color: rgba(214, 191, 181, 0.84) !important;
+  font-size: 11px !important;
+  line-height: 1;
+  text-align: left;
+  opacity: 0;
+  transform: none;
+}
+
+.gg-inline-power-bonus.is-visible {
+  opacity: 1;
+}
+
+.gg-ritual-values small {
+  position: static !important;
+  color: rgba(188, 172, 158, 0.58) !important;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.gg-ritual-metric-center .gg-ritual-metric-line {
+  position: relative;
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.gg-ritual-metric-center strong {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+}
+
+.gg-power-total .gg-inline-power-bonus {
+  position: absolute !important;
+  right: 10px;
+}
+
+.gg-ritual-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 10px;
+  min-width: 0;
+  align-items: start;
+}
+
+.gg-ritual-options label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  margin: 0;
+  color: #d8d0c5 !important;
+  font-size: 11px;
+  line-height: 1.15;
+}
+
+.gg-safe-cast {
+  grid-column: 2;
+  justify-self: end;
+  justify-content: flex-end;
+}
+
+.gg-ritual-options label > span {
+  min-width: 0;
+  color: inherit !important;
+}
+
+.gg-ritual-options input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: #812c37;
+}
+
+.gg-ritual-options .is-hidden {
+  display: none !important;
+}
+
+.gg-safe-cast select {
+  width: 48px;
+  min-width: 48px;
+  height: 24px;
+  margin-left: auto;
+  padding: 0 4px;
+  color: #eee5d8 !important;
+  border: 1px solid rgba(133, 89, 86, 0.55) !important;
+  background: #100b0e !important;
+  font-family: "Signika", sans-serif !important;
+  font-size: 11px;
+}
+
+.gg-safe-cast select option {
+  color: #eee5d8 !important;
+  background: #100b0e !important;
+}
+
+.gg-ritual-circle {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 18px 40px 46px;
+  gap: 6px;
+  padding: 14px 16px 12px 18px;
+  overflow: visible;
+}
+
+.gg-ritual-circle::after {
+  content: "";
+  position: absolute;
+  top: 5%;
+  bottom: 5%;
+  left: 0;
+  width: 1px;
+  background: linear-gradient(transparent, rgba(154, 122, 108, 0.18) 15%, rgba(154, 122, 108, 0.18) 85%, transparent);
+  box-shadow: -5px 0 12px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.gg-seal-field {
+  --gg-accuracy-scale: 0;
+  --gg-accuracy-opacity: 0;
+  position: relative;
+  place-self: center;
+  width: min(82%, 340px);
+  min-width: 210px;
+  min-height: 210px;
+  max-height: 100%;
+  aspect-ratio: 1;
+  overflow: visible;
+  isolation: isolate;
+  border: 1px solid rgba(160, 135, 118, 0.18);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(12, 10, 14, 0.18), rgba(0, 0, 0, 0.52) 74%);
+  box-shadow:
+    inset 0 0 34px rgba(0, 0, 0, 0.88),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.02),
+    0 0 18px rgba(78, 0, 10, 0.12);
+}
+
+.gg-seal-field::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 12.5%;
+  border: 1px dashed rgba(181, 158, 144, 0.28);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.gg-seal-field::after {
+  content: none;
+}
+
+.gg-seal-accuracy {
+  position: absolute;
+  z-index: 1;
+  inset: -8%;
+  pointer-events: none;
+}
+
+.gg-seal-accuracy::before {
+  content: "";
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(255, 214, 214, 0.34) 0%, rgba(216, 31, 54, 0.24) 28%, rgba(147, 9, 29, 0.14) 54%, rgba(78, 0, 11, 0) 72%);
+  opacity: var(--gg-accuracy-opacity);
+  transform: scale(var(--gg-accuracy-scale));
+  transform-origin: center;
+  filter: blur(11px);
+  transition: transform 0.18s ease, opacity 0.18s ease, filter 0.18s ease;
+}
+
+.gg-seal-field.has-accuracy .gg-seal-accuracy::before {
+  opacity: var(--gg-accuracy-opacity);
+}
+
+.gg-seal-field.is-threshold-ready .gg-seal-accuracy::before {
+  animation: gg-accuracy-shimmer 4.6s ease-in-out infinite alternate;
+}
+
+.gg-seal-field.is-perfect-ready .gg-seal-accuracy::before {
+  inset: 1%;
+  filter: blur(16px);
+}
+
+.gg-target-sigil {
+  position: absolute;
+  z-index: 3;
+  inset: 8%;
+  display: grid;
+  place-items: center;
+  color: rgba(221, 208, 192, 0.34);
+  filter: drop-shadow(0 0 4px rgba(76, 0, 9, 0.34));
+  pointer-events: none;
+  transition: color 0.18s ease, opacity 0.18s ease, filter 0.18s ease;
+}
+
+.gg-target-sigil .gg-guide-ink {
+  stroke-width: 1.75;
+  opacity: 0.84;
+}
+
+.gg-ritual-canvas {
+  z-index: 4;
+  inset: 8%;
+  width: 84% !important;
+  height: 84% !important;
+}
+
+
+.gg-ritual-circle.is-drawing .gg-seal-accuracy::before,
+.gg-ritual-circle.is-drawing .gg-target-sigil {
+  animation-play-state: paused !important;
+  filter: none;
+}
+
+.gg-ritual-circle.is-bound .gg-target-sigil {
+  color: rgba(196, 173, 151, 0.2);
+  opacity: 0.62;
+  filter: drop-shadow(0 0 5px rgba(92, 0, 12, 0.44));
+}
+
+.gg-ritual-circle.is-perfect .gg-seal-field {
+  box-shadow:
+    inset 0 0 34px rgba(0, 0, 0, 0.86),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.02),
+    0 0 28px rgba(155, 0, 18, 0.28),
+    0 0 68px rgba(226, 24, 51, 0.12);
+}
+
+.gg-ritual-circle.is-perfect .gg-target-sigil {
+  color: rgba(237, 210, 204, 0.22);
+  filter: drop-shadow(0 0 7px rgba(171, 0, 17, 0.52));
+}
+
+.gg-no-wp-effect {
+  display: none;
+}
+
+.gg-ritual-circle.is-no-wp .gg-seal-field {
+  border-color: rgba(116, 45, 55, 0.62);
+  box-shadow:
+    inset 0 0 44px rgba(0, 0, 0, 0.94),
+    inset 0 0 0 10px rgba(40, 0, 7, 0.12),
+    0 0 24px rgba(91, 0, 15, 0.32);
+}
+
+.gg-ritual-circle.is-no-wp .gg-target-sigil {
+  color: rgba(151, 119, 112, 0.18);
+  filter: grayscale(0.75) blur(0.25px);
+}
+
+.gg-ritual-circle.is-no-wp .gg-no-wp-effect {
+  position: absolute;
+  z-index: 7;
+  inset: -2%;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(127, 38, 50, 0.54);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(49, 0, 8, 0.12), rgba(0, 0, 0, 0.72) 72%);
+  box-shadow: inset 0 0 34px #000, 0 0 18px rgba(93, 0, 14, 0.26);
+  pointer-events: auto;
+  animation: gg-no-wp-pulse 2.2s ease-in-out infinite;
+}
+
+.gg-no-wp-effect span {
+  padding: 6px 10px;
+  color: rgba(211, 145, 145, 0.78);
+  border: 1px solid rgba(134, 54, 61, 0.46);
+  border-radius: 50%;
+  background: rgba(7, 4, 6, 0.86);
+  font-family: "Signika", sans-serif !important;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 8px rgba(150, 0, 20, 0.72);
+}
+
+.gg-extra-list {
+  position: absolute;
+  z-index: 5;
+  inset: -28px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.gg-extra-slot {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  margin: -24px;
+  padding: 0;
+  overflow: visible;
+  color: #d8d0c2;
+  border: 1px solid rgba(181, 145, 124, 0.48);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 46%, rgba(41, 13, 18, 0.72), rgba(5, 3, 5, 0.96) 72%);
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.88), 0 0 8px rgba(91, 0, 12, 0.2);
+  pointer-events: auto;
+}
+
+.gg-extra-slot:hover {
+  color: #fff2df;
+  border-color: rgba(231, 194, 158, 0.78);
+}
+
+.gg-extra-slot.is-filled {
+  border-color: rgba(232, 142, 132, 0.94);
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9), 0 0 16px rgba(151, 0, 22, 0.5);
+}
+
+.gg-extra-canvas {
+  inset: 3px;
+  width: calc(100% - 6px) !important;
+  height: calc(100% - 6px) !important;
+  border-radius: 50% !important;
+  pointer-events: auto;
+}
+
+.gg-extra-slot > span {
+  position: absolute;
+  z-index: 3;
+  bottom: -13px;
+  color: rgba(202, 189, 173, 0.5);
+  font-family: "Signika", sans-serif !important;
+  font-size: 8px;
+  pointer-events: none;
+}
+
+.gg-ritual-status {
+  position: relative;
+  z-index: 8;
+  min-height: 18px;
+  color: #c9a7a1 !important;
+  font-size: 10px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.gg-ritual-status:empty::before {
+  content: "\00a0";
+}
+
+.gg-ritual-status.is-visual-only {
+  min-height: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.gg-ritual-toolbar {
+  position: relative;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 40px;
+  overflow: visible;
+}
+
+.gg-ritual-toolbar .gg-after-bind {
+  display: none;
+}
+
+.gg-ritual-circle.is-bound .gg-ritual-toolbar .gg-before-bind {
+  display: none;
+}
+
+.gg-ritual-circle.is-bound .gg-ritual-toolbar .gg-after-bind {
+  display: inline-grid;
+}
+
+.gg-ritual-footer {
+  position: relative;
+  z-index: 9;
+  display: flex;
+  justify-content: center;
+}
+
+.gg-cast-button {
+  width: min(100%, 260px) !important;
+  min-height: 38px;
+  margin: 0 !important;
+  padding: 8px 18px !important;
+  color: #f0e6d7 !important;
+  border: 1px solid rgba(153, 77, 78, 0.74) !important;
+  border-radius: 4px !important;
+  background: linear-gradient(180deg, rgba(97, 29, 37, 0.92), rgba(33, 9, 15, 0.98) 58%, rgba(8, 5, 7, 0.99)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 222, 192, 0.05),
+    inset 0 0 14px rgba(0, 0, 0, 0.55),
+    0 5px 13px rgba(0, 0, 0, 0.55),
+    0 0 15px rgba(113, 0, 17, 0.26) !important;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: filter 0.14s ease, border-color 0.14s ease, transform 0.14s ease;
+}
+
+.gg-cast-button:not(:disabled):hover,
+.gg-cast-button:not(:disabled):focus-visible {
+  color: #fff6e8 !important;
+  border-color: rgba(226, 163, 139, 0.9) !important;
+  filter: brightness(1.2);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.gg-cast-button:disabled {
+  color: rgba(196, 187, 174, 0.48) !important;
+  border-color: rgba(87, 66, 64, 0.42) !important;
+  background: linear-gradient(180deg, rgba(37, 26, 28, 0.82), rgba(10, 8, 10, 0.92)) !important;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.72) !important;
+  cursor: not-allowed;
+  opacity: 0.78;
+  filter: grayscale(0.55);
+}
+
+.gg-cast-button.is-unaffordable {
+  border-color: rgba(105, 69, 67, 0.45) !important;
+}
+
+.gg-cast-button.is-casting {
+  animation: gg-cast-pulse 0.36s ease-in-out infinite alternate;
+}

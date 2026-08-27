@@ -1,0 +1,220 @@
+/* -------------------------------------------------------------------------- */
+/* Global cast presentation                                                   */
+/* -------------------------------------------------------------------------- */
+
+.gg-cast-fx-overlay {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+  background: transparent;
+}
+
+/* Fade the entire visual stage in as one composited unit. Animating the
+   full-screen fixed overlay itself used to produce a one-frame dark flash in
+   Chromium while its radial backing layer and SVG were promoted separately. */
+.gg-cast-fx-stage,
+.gg-cast-fx-label {
+  opacity: 0;
+}
+
+.gg-cast-fx-overlay.is-visible .gg-cast-fx-stage,
+.gg-cast-fx-overlay.is-visible .gg-cast-fx-label {
+  opacity: 1;
+  transition: opacity 0.18s ease-out;
+}
+
+.gg-cast-fx-overlay.is-fading {
+  opacity: 0;
+  transition: opacity 0.72s ease;
+}
+
+.gg-cast-fx-stage {
+  position: relative;
+  width: min(78vw, 680px);
+  max-height: 82vh;
+  aspect-ratio: 1;
+  isolation: isolate;
+}
+
+.gg-cast-fx-stage::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: -12%;
+  border-radius: 50%;
+  background: radial-gradient(circle at center,
+    rgba(0, 0, 0, 0.9) 0 23%,
+    rgba(0, 0, 0, 0.74) 36%,
+    rgba(0, 0, 0, 0.4) 53%,
+    rgba(0, 0, 0, 0.12) 68%,
+    transparent 82%);
+  filter: blur(10px);
+}
+
+.gg-cast-fx-stage::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 4%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(93, 0, 15, 0.14), transparent 52%),
+    repeating-radial-gradient(circle at center, transparent 0 23px, rgba(165, 19, 35, 0.045) 24px, transparent 25px 41px);
+  opacity: 0.82;
+}
+
+.gg-cast-fx-sigil {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+  width: 62%;
+  aspect-ratio: 1;
+  color: rgba(205, 16, 39, 0.98);
+  filter:
+    drop-shadow(0 0 4px rgba(255, 58, 74, 0.95))
+    drop-shadow(0 0 13px rgba(219, 0, 31, 0.82))
+    drop-shadow(0 0 30px rgba(113, 0, 19, 0.82));
+  transform: translate(-50%, -50%);
+}
+
+.gg-cast-fx-sigil .gg-ink-shadow {
+  stroke: rgba(219, 18, 44, 0.92);
+  stroke-width: 6.6;
+  opacity: 0.78;
+}
+
+.gg-cast-fx-sigil .gg-ink-main {
+  stroke: rgba(255, 249, 244, 0.98);
+  stroke-width: 2.65;
+  opacity: 1;
+}
+
+.gg-cast-fx-sigil .gg-ink-fray {
+  stroke: rgba(255, 234, 229, 0.92);
+  stroke-width: 1;
+  opacity: 0.82;
+}
+
+.gg-cast-fx-enhancements {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+}
+
+.gg-cast-fx-enhancement {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: clamp(68px, 12vw, 104px);
+  aspect-ratio: 1;
+  color: rgba(205, 16, 39, 0.98);
+  filter:
+    drop-shadow(0 0 4px rgba(255, 58, 74, 0.95))
+    drop-shadow(0 0 13px rgba(219, 0, 31, 0.82))
+    drop-shadow(0 0 30px rgba(113, 0, 19, 0.82));
+  transform: translate(-50%, -50%);
+}
+
+.gg-cast-fx-enhancement-svg {
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible;
+}
+
+.gg-cast-fx-enhancement .gg-ink-shadow {
+  stroke: rgba(219, 18, 44, 0.92);
+  stroke-width: 6.6;
+  opacity: 0.78;
+}
+
+.gg-cast-fx-enhancement .gg-ink-main {
+  stroke: rgba(255, 249, 244, 0.98);
+  stroke-width: 2.65;
+  opacity: 1;
+}
+
+.gg-cast-fx-enhancement .gg-ink-fray {
+  stroke: rgba(255, 234, 229, 0.92);
+  stroke-width: 1;
+  opacity: 0.82;
+}
+
+.gg-cast-fx-label {
+  position: absolute;
+  z-index: 5;
+  top: calc(50% + min(38vw, 330px));
+  left: 50%;
+  max-width: min(88vw, 720px);
+  padding: 7px 18px;
+  overflow: hidden;
+  color: rgba(250, 232, 226, 0.98);
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.28) 62%, transparent 78%);
+  text-align: center;
+  text-overflow: ellipsis;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 0 14px #000, 0 0 12px rgba(201, 0, 30, 0.72);
+  transform: translateX(-50%);
+}
+
+/* Mishap cast presentation. Keep the distortion transform-only so it remains
+   cheap to composite and does not force an animated SVG turbulence filter. */
+.gg-cast-fx-overlay.is-mishap .gg-cast-fx-sigil {
+  animation: gg-cast-fx-mishap-twist var(--gg-mishap-speed, 0.72s) ease-in-out infinite alternate;
+}
+
+.gg-cast-fx-overlay.is-mishap .gg-cast-fx-svg {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: gg-cast-fx-mishap-warp var(--gg-mishap-warp-speed, 0.53s) steps(3, jump-none) infinite alternate;
+}
+
+.gg-cast-fx-overlay.is-mishap .gg-cast-fx-stage::after {
+  opacity: 1;
+  animation: gg-cast-fx-mishap-pulse 0.72s ease-in-out infinite alternate;
+}
+
+@keyframes gg-cast-fx-mishap-twist {
+  0% {
+    transform: translate(calc(-50% + var(--gg-mishap-shift-neg, -1px)), -50%)
+      rotate(var(--gg-mishap-angle-neg, -2deg)) skewX(-1.4deg) scale(0.985, 1.018);
+  }
+  45% {
+    transform: translate(-50%, calc(-50% + var(--gg-mishap-shift, 1px)))
+      rotate(1deg) skewY(1.1deg) scale(1.018, 0.988);
+  }
+  100% {
+    transform: translate(calc(-50% + var(--gg-mishap-shift, 1px)), -50%)
+      rotate(var(--gg-mishap-angle, 2deg)) skewX(1.7deg) scale(0.992, 1.025);
+  }
+}
+
+@keyframes gg-cast-fx-mishap-warp {
+  0% { transform: translateX(var(--gg-mishap-shift-neg, -1px)) skewX(-1.2deg) scaleX(0.985); }
+  50% { transform: translateY(var(--gg-mishap-shift, 1px)) skewY(1deg) scaleX(1.018) scaleY(0.992); }
+  100% { transform: translateX(var(--gg-mishap-shift, 1px)) skewX(1.4deg) scaleX(0.99) scaleY(1.012); }
+}
+
+@keyframes gg-cast-fx-mishap-pulse {
+  from { transform: scale(0.97) rotate(-0.8deg); opacity: 0.88; }
+  to { transform: scale(1.025) rotate(0.9deg); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gg-cast-fx-overlay.is-visible .gg-cast-fx-stage,
+  .gg-cast-fx-overlay.is-visible .gg-cast-fx-label {
+    transition: none !important;
+  }
+
+  .gg-cast-fx-overlay.is-mishap .gg-cast-fx-sigil,
+  .gg-cast-fx-overlay.is-mishap .gg-cast-fx-svg,
+  .gg-cast-fx-overlay.is-mishap .gg-cast-fx-stage::after {
+    animation: none !important;
+  }
+}
