@@ -254,6 +254,28 @@ function validateBaseRequest(data) {
   if (!Number.isFinite(age) || age > REQUEST_MAX_AGE_MS) throw errorForCode("REQUEST_EXPIRED", "The casting request expired.");
 }
 
+function makeFxPayload({ data, actor, spell, result, chance, forcedChance, drawnStrokes, enhancements }) {
+  return {
+    protocol: PROTOCOL_VERSION,
+    type: "castFx",
+    requestId: data.requestId,
+    gmId: data.gmId,
+    actorName: String(actor.name ?? "").slice(0, MAX_LABEL_LENGTH),
+    spellName: String(spell.name ?? "").replace(/^\s*\d+\s*[-–—:]\s*/, "").slice(0, MAX_LABEL_LENGTH),
+    powerLevel: result.powerLevel,
+    mishap: Boolean(result.mishap),
+    mishapUnits: result.mishapUnits,
+    mishapSeverity: result.mishapSeverity,
+    chance,
+    forcedChance,
+    sigil: {
+      seed: `${spellSigilSeed(actor, spell)}:cast`,
+      strokes: packStrokes(drawnStrokes, MAIN_LIMITS)
+    },
+    enhancements: encodeEnhancements(enhancements)
+  };
+}
+
 async function executeValidatedRequest(data, { local = false, actorHint = null } = {}) {
   validateBaseRequest(data);
   if (!checkGlobalRequestRate()) throw errorForCode("RATE_LIMIT", "Too many casting requests. Try again in a moment.");
@@ -321,6 +343,7 @@ async function executeValidatedRequest(data, { local = false, actorHint = null }
   };
 
   let castResult;
+  let fxPayload = null;
   try {
     castResult = await castSpellFromGrimoire({
       actor,
@@ -331,45 +354,49 @@ async function executeValidatedRequest(data, { local = false, actorHint = null }
       psychicPower,
       safeCast,
       bonusPowerLevel: perfectBonus,
-      messageDataFactory: (resolved) => ({
-        flags: {
-          [MODULE_ID]: {
-            castAudit: {
-              ...auditBase,
-              rolledOnes: resolved.rolledOnes,
-              mishapUnits: resolved.mishapUnits,
-              mishapSeverity: resolved.mishapSeverity,
-              mishap: Boolean(resolved.mishap),
-              createdAt: Date.now()
+      messageDataFactory: (resolved) => {
+        fxPayload = makeFxPayload({
+          data,
+          actor,
+          spell,
+          result: resolved,
+          chance,
+          forcedChance,
+          drawnStrokes,
+          enhancements
+        });
+        return {
+          flags: {
+            [MODULE_ID]: {
+              castAudit: {
+                ...auditBase,
+                rolledOnes: resolved.rolledOnes,
+                mishapUnits: resolved.mishapUnits,
+                mishapSeverity: resolved.mishapSeverity,
+                mishap: Boolean(resolved.mishap),
+                createdAt: Date.now()
+              },
+              castFx: fxPayload
             }
           }
-        }
-      })
+        };
+      }
     });
   } catch (error) {
     if (/willpower/i.test(String(error?.message))) throw errorForCode("NOT_ENOUGH_WP", "Not enough Willpower Points.");
     throw error;
   }
 
-  const fxPayload = {
-    protocol: PROTOCOL_VERSION,
-    type: "castFx",
-    requestId: data.requestId,
-    gmId: data.gmId,
-    actorName: String(actor.name ?? "").slice(0, MAX_LABEL_LENGTH),
-    spellName: String(spell.name ?? "").replace(/^\s*\d+\s*[-–—:]\s*/, "").slice(0, MAX_LABEL_LENGTH),
-    powerLevel: castResult.powerLevel,
-    mishap: Boolean(castResult.mishap),
-    mishapUnits: castResult.mishapUnits,
-    mishapSeverity: castResult.mishapSeverity,
+  fxPayload ??= makeFxPayload({
+    data,
+    actor,
+    spell,
+    result: castResult,
     chance,
     forcedChance,
-    sigil: {
-      seed: `${spellSigilSeed(actor, spell)}:cast`,
-      strokes: packStrokes(drawnStrokes, MAIN_LIMITS)
-    },
-    enhancements: encodeEnhancements(enhancements)
-  };
+    drawnStrokes,
+    enhancements
+  });
 
   return {
     result: {
@@ -524,16 +551,24 @@ function decodeCastResult(data) {
   };
 }
 
-async function publishCastFx(payload) {
+async function presentCastFxOnce(payload) {
+  const decoded = decodeFxPayload(payload);
   trimMap(acceptedFxIds, REQUEST_MAX_AGE_MS * 2);
-  acceptedFxIds.set(payload.requestId, { timestamp: Date.now() });
+  if (acceptedFxIds.has(decoded.requestId)) return false;
+  if (!checkFxRate()) return false;
+  acceptedFxIds.set(decoded.requestId, { timestamp: Date.now() });
+  await castFxPresenter(decoded);
+  return true;
+}
+
+async function publishCastFx(payload) {
   try {
     sendSocket(payload);
   } catch (error) {
     console.warn("Goetia Grimoire | Unable to broadcast cast effect.", error);
   }
   try {
-    await castFxPresenter(decodeFxPayload(payload));
+    await presentCastFxOnce(payload);
   } catch (error) {
     console.warn("Goetia Grimoire | Unable to present local cast effect.", error);
   }
@@ -541,6 +576,18 @@ async function publishCastFx(payload) {
 
 export function setCastFxPresenter(presenter) {
   castFxPresenter = typeof presenter === "function" ? presenter : async () => {};
+}
+
+export async function handleCastChatMessage(message) {
+  const moduleFlags = message?.flags?.[MODULE_ID] ?? null;
+  const audit = moduleFlags?.castAudit;
+  const payload = moduleFlags?.castFx;
+  if (!audit || !payload || audit.requestId !== payload.requestId) return;
+  try {
+    await presentCastFxOnce(payload);
+  } catch (error) {
+    console.warn("Goetia Grimoire | Rejected malformed ChatMessage cast effect.", error);
+  }
 }
 
 export async function requestAuthoritativeCast({
@@ -616,13 +663,8 @@ export async function handleCastSocketMessage(data) {
   }
 
   if (data.type === "castFx") {
-    const gm = activeAuthoritativeGm();
-    if (!gm || data.gmId !== gm.id) return;
-    trimMap(acceptedFxIds, REQUEST_MAX_AGE_MS * 2);
-    if (acceptedFxIds.has(data.requestId) || !checkFxRate()) return;
-    acceptedFxIds.set(data.requestId, { timestamp: Date.now() });
     try {
-      await castFxPresenter(decodeFxPayload(data));
+      await presentCastFxOnce(data);
     } catch (error) {
       console.warn("Goetia Grimoire | Rejected malformed cast effect.", error);
     }
