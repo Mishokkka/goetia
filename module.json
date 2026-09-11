@@ -25,6 +25,7 @@
       }
     ]
   },
+  "socket": true,
   "esmodules": [
     "scripts/main.js"
   ],
