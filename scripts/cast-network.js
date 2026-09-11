@@ -254,23 +254,24 @@ function validateBaseRequest(data) {
   if (!Number.isFinite(age) || age > REQUEST_MAX_AGE_MS) throw errorForCode("REQUEST_EXPIRED", "The casting request expired.");
 }
 
-async function executeValidatedRequest(data) {
+async function executeValidatedRequest(data, { local = false, actorHint = null } = {}) {
   validateBaseRequest(data);
   if (!checkGlobalRequestRate()) throw errorForCode("RATE_LIMIT", "Too many casting requests. Try again in a moment.");
   trimMap(processedRequests, REQUEST_MAX_AGE_MS * 2);
   if (processedRequests.has(data.requestId)) throw errorForCode("REQUEST_REPLAY", "This casting request was already processed.");
 
   const authoritativeGm = activeAuthoritativeGm();
-  if (!game.user?.isGM || authoritativeGm?.id !== game.user.id || data.gmId !== game.user.id) {
+  const localRequester = Boolean(local && data.requesterId === game.user?.id);
+  if (!localRequester && (!game.user?.isGM || authoritativeGm?.id !== game.user.id || data.gmId !== game.user.id)) {
     throw errorForCode("NOT_AUTHORITY", "This client is not the authoritative GM.");
   }
 
-  const requester = game.users?.get?.(data.requesterId);
+  const requester = game.users?.get?.(data.requesterId) ?? (localRequester ? game.user : null);
   if (!requester?.active) throw errorForCode("REQUESTER_OFFLINE", "The casting user is no longer connected.");
   if (!checkRequestRate(requester.id)) throw errorForCode("RATE_LIMIT", "Too many casting requests. Try again in a moment.");
   processedRequests.set(data.requestId, { timestamp: Date.now() });
 
-  const actor = await resolveActor(data.actorUuid);
+  const actor = actorHint?.uuid === data.actorUuid ? actorHint : await resolveActor(data.actorUuid);
   if (!actor || actor.type !== "character" || !isMiracleWorker(actor)) {
     throw errorForCode("INVALID_ACTOR", "The miracle worker could not be resolved.");
   }
@@ -303,7 +304,7 @@ async function executeValidatedRequest(data) {
     protocol: PROTOCOL_VERSION,
     requestId: data.requestId,
     requesterId: requester.id,
-    gmId: game.user.id,
+    gmId: data.gmId,
     actorUuid: actor.uuid,
     spellId: spell.id,
     similarity,
@@ -354,7 +355,7 @@ async function executeValidatedRequest(data) {
     protocol: PROTOCOL_VERSION,
     type: "castFx",
     requestId: data.requestId,
-    gmId: game.user.id,
+    gmId: data.gmId,
     actorName: String(actor.name ?? "").slice(0, MAX_LABEL_LENGTH),
     spellName: String(spell.name ?? "").replace(/^\s*\d+\s*[-–—:]\s*/, "").slice(0, MAX_LABEL_LENGTH),
     powerLevel: castResult.powerLevel,
@@ -524,6 +525,8 @@ function decodeCastResult(data) {
 }
 
 async function publishCastFx(payload) {
+  trimMap(acceptedFxIds, REQUEST_MAX_AGE_MS * 2);
+  acceptedFxIds.set(payload.requestId, { timestamp: Date.now() });
   try {
     sendSocket(payload);
   } catch (error) {
@@ -552,8 +555,8 @@ export async function requestAuthoritativeCast({
   enhancements = []
 }) {
   const gm = activeAuthoritativeGm();
-  if (!gm) throw errorForCode("NO_GM", "An active GM is required to cast spells.");
   if (!actor?.uuid || !spell?.id) throw errorForCode("INVALID_REQUEST", "Invalid casting request.");
+  if (!ownsActor(actor, game.user)) throw errorForCode("NOT_OWNER", "The casting user does not own this actor.");
 
   if (Array.isArray(enhancements) && enhancements.length > MAX_ENHANCEMENTS) {
     throw errorForCode("TOO_MANY_ENHANCEMENTS", "Too many enhancement marks were supplied.");
@@ -565,7 +568,7 @@ export async function requestAuthoritativeCast({
     type: "castRequest",
     requestId,
     requesterId: game.user.id,
-    gmId: gm.id,
+    gmId: gm?.id ?? game.user.id,
     createdAt: Date.now(),
     actorUuid: actor.uuid,
     spellId: spell.id,
@@ -580,27 +583,10 @@ export async function requestAuthoritativeCast({
     enhancements: encodeEnhancements(enhancements)
   };
 
-  if (game.user.id === gm.id) {
-    const execution = await executeValidatedRequest(request);
-    await publishCastFx(execution.fxPayload);
-    if (execution.postCastTask) schedulePostCastTask(execution.postCastTask);
-    return execution.result;
-  }
-
-  return new Promise((resolve, reject) => {
-    const timeout = window.setTimeout(() => {
-      pendingRequests.delete(requestId);
-      reject(errorForCode("TIMEOUT", "The GM did not answer the casting request."));
-    }, REQUEST_TIMEOUT_MS);
-    pendingRequests.set(requestId, { resolve, reject, timeout, gmId: gm.id, timestamp: Date.now() });
-    try {
-      sendSocket(request);
-    } catch (error) {
-      clearTimeout(timeout);
-      pendingRequests.delete(requestId);
-      reject(error);
-    }
-  });
+  const execution = await executeValidatedRequest(request, { local: true, actorHint: actor });
+  await publishCastFx(execution.fxPayload);
+  if (execution.postCastTask) schedulePostCastTask(execution.postCastTask);
+  return execution.result;
 }
 
 export async function handleCastSocketMessage(data) {
@@ -631,7 +617,7 @@ export async function handleCastSocketMessage(data) {
 
   if (data.type === "castFx") {
     const gm = activeAuthoritativeGm();
-    if (!gm || data.gmId !== gm.id || game.user.id === data.gmId) return;
+    if (!gm || data.gmId !== gm.id) return;
     trimMap(acceptedFxIds, REQUEST_MAX_AGE_MS * 2);
     if (acceptedFxIds.has(data.requestId) || !checkFxRate()) return;
     acceptedFxIds.set(data.requestId, { timestamp: Date.now() });
