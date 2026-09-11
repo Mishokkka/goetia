@@ -1,6 +1,6 @@
 import { MODULE_ID, clearTalentAliasCache } from "./config.js";
 import { destroyActorSheet, enhanceActorSheet } from "./grimoire.js";
-import { handleCastSocketMessage } from "./cast-network.js";
+import { handleCastChatMessage, handleCastSocketMessage } from "./cast-network.js";
 import { initializeCastFx, registerCastFxSettings, shutdownCastFx } from "./cast-fx.js";
 import { registerAudioSettings, stopAllModuleSounds } from "./audio-service.js";
 import { registerMishapSettings } from "./mishap-service.js";
@@ -74,6 +74,10 @@ Hooks.once("ready", async () => {
   } catch (error) {
     console.error("Goetia Grimoire | World migration failed.", error);
   }
+});
+
+Hooks.on("createChatMessage", (message) => {
+  void handleCastChatMessage(message).catch((error) => console.error("Goetia Grimoire | ChatMessage cast FX handler failed.", error));
 });
 
 Hooks.on("renderActorSheet", async (app, html) => {
