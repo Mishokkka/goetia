@@ -525,6 +525,8 @@ function decodeCastResult(data) {
 }
 
 async function publishCastFx(payload) {
+  trimMap(acceptedFxIds, REQUEST_MAX_AGE_MS * 2);
+  acceptedFxIds.set(payload.requestId, { timestamp: Date.now() });
   try {
     sendSocket(payload);
   } catch (error) {
@@ -615,7 +617,7 @@ export async function handleCastSocketMessage(data) {
 
   if (data.type === "castFx") {
     const gm = activeAuthoritativeGm();
-    if (!gm || data.gmId !== gm.id || game.user.id === data.gmId) return;
+    if (!gm || data.gmId !== gm.id) return;
     trimMap(acceptedFxIds, REQUEST_MAX_AGE_MS * 2);
     if (acceptedFxIds.has(data.requestId) || !checkFxRate()) return;
     acceptedFxIds.set(data.requestId, { timestamp: Date.now() });
