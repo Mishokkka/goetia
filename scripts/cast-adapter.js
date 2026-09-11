@@ -19,7 +19,6 @@ async function performCastSpell({
   bonusPowerLevel = 0,
   messageDataFactory = null
 }) {
-  if (!game.user?.isGM) throw new Error("Only an active GM may resolve grimoire casts.");
   if (!actor?.isOwner) throw new Error("The current user does not own this actor.");
   if (!spell || spell.type !== "spell") throw new Error("Invalid spell.");
 
