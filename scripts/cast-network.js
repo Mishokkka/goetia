@@ -579,7 +579,7 @@ export function setCastFxPresenter(presenter) {
 }
 
 export async function handleCastChatMessage(message) {
-  const moduleFlags = message?.flags?.[MODULE_ID] ?? message?.getFlag?.(MODULE_ID, "") ?? null;
+  const moduleFlags = message?.flags?.[MODULE_ID] ?? null;
   const audit = moduleFlags?.castAudit;
   const payload = moduleFlags?.castFx;
   if (!audit || !payload || audit.requestId !== payload.requestId) return;
